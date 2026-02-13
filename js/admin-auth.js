@@ -1,4 +1,4 @@
-// K-자금컴퍼니 관리자 인증 모듈
+// K-자금컴퍼니 관리자 인증 모듈 (텔레그램 OTP)
 const AUTH_KEY = 'kfund_admin_auth';
 const WORKER_URL = 'https://kfund.t63755720.workers.dev';
 
@@ -20,29 +20,31 @@ function checkAuth() {
   }
 }
 
-// 로그인 처리 (Worker API 통해 인증)
-async function login(password) {
-  try {
-    const response = await fetch(`${WORKER_URL}/auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
-    });
+// OTP 요청
+async function requestOTP() {
+  const response = await fetch(`${WORKER_URL}/auth/otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return await response.json();
+}
 
-    const result = await response.json();
+// OTP 검증 → 로그인
+async function verifyOTP(code) {
+  const response = await fetch(`${WORKER_URL}/auth`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code })
+  });
+  const result = await response.json();
 
-    if (result.success) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify({
-        token: result.token,
-        expiresAt: Date.now() + result.expiresIn
-      }));
-      return { success: true };
-    } else {
-      return { success: false, error: result.error || '비밀번호가 올바르지 않습니다' };
-    }
-  } catch (error) {
-    return { success: false, error: error.message };
+  if (result.success) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify({
+      token: result.token,
+      expiresAt: Date.now() + result.expiresIn
+    }));
   }
+  return result;
 }
 
 // 로그아웃
@@ -53,7 +55,6 @@ function logout() {
 
 // 로그인 모달 표시
 function showLoginModal() {
-  // 기존 모달 제거
   const existing = document.getElementById('login-modal');
   if (existing) existing.remove();
 
@@ -85,7 +86,7 @@ function showLoginModal() {
         margin: 0 0 8px 0;
         text-align: center;
       }
-      .login-box p {
+      .login-box .login-desc {
         color: rgba(255,255,255,0.6);
         font-size: 14px;
         margin: 0 0 24px 0;
@@ -98,7 +99,9 @@ function showLoginModal() {
         border: 1px solid rgba(255,255,255,0.1);
         border-radius: 10px;
         color: #fff;
-        font-size: 16px;
+        font-size: 24px;
+        letter-spacing: 8px;
+        text-align: center;
         outline: none;
         box-sizing: border-box;
       }
@@ -135,56 +138,166 @@ function showLoginModal() {
         text-align: center;
         display: none;
       }
+      .login-timer {
+        color: rgba(255,255,255,0.5);
+        font-size: 13px;
+        margin-top: 12px;
+        text-align: center;
+        display: none;
+      }
+      .login-resend {
+        color: #60A5FA;
+        font-size: 13px;
+        margin-top: 8px;
+        text-align: center;
+        display: none;
+        cursor: pointer;
+        background: none;
+        border: none;
+        text-decoration: underline;
+      }
+      .login-resend:hover { color: #93C5FD; }
+      #step-otp-input { display: none; }
     </style>
     <div class="login-box">
       <h2>K-자금컴퍼니</h2>
-      <p>관리자 비밀번호를 입력하세요</p>
-      <input type="password" class="login-input" id="login-password" placeholder="비밀번호" autocomplete="current-password">
-      <button class="login-btn" id="login-submit">로그인</button>
+      <p class="login-desc" id="login-desc">텔레그램으로 인증번호를 받으세요</p>
+
+      <!-- Step 1: 인증번호 요청 -->
+      <div id="step-otp-request">
+        <button class="login-btn" id="btn-request-otp">인증번호 요청</button>
+      </div>
+
+      <!-- Step 2: 인증번호 입력 -->
+      <div id="step-otp-input">
+        <input type="text" class="login-input" id="otp-code" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+        <button class="login-btn" id="btn-verify-otp">로그인</button>
+        <p class="login-timer" id="login-timer"></p>
+        <button class="login-resend" id="btn-resend">인증번호 재발송</button>
+      </div>
+
       <p class="login-error" id="login-error"></p>
     </div>
   `;
 
   document.body.appendChild(modal);
 
-  const passwordInput = document.getElementById('login-password');
-  const submitBtn = document.getElementById('login-submit');
+  const descEl = document.getElementById('login-desc');
+  const step1 = document.getElementById('step-otp-request');
+  const step2 = document.getElementById('step-otp-input');
+  const btnRequest = document.getElementById('btn-request-otp');
+  const btnVerify = document.getElementById('btn-verify-otp');
+  const btnResend = document.getElementById('btn-resend');
+  const codeInput = document.getElementById('otp-code');
   const errorEl = document.getElementById('login-error');
+  const timerEl = document.getElementById('login-timer');
 
-  // 엔터키 처리
-  passwordInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') submitBtn.click();
-  });
+  let timerId = null;
 
-  // 로그인 버튼 클릭
-  submitBtn.addEventListener('click', async () => {
-    const password = passwordInput.value.trim();
-    if (!password) {
-      errorEl.textContent = '비밀번호를 입력하세요';
+  function startTimer() {
+    let remaining = 300;
+    timerEl.style.display = 'block';
+    btnResend.style.display = 'none';
+
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(() => {
+      remaining--;
+      const m = Math.floor(remaining / 60);
+      const s = String(remaining % 60).padStart(2, '0');
+      timerEl.textContent = `남은 시간: ${m}:${s}`;
+
+      if (remaining <= 0) {
+        clearInterval(timerId);
+        timerEl.textContent = '인증번호가 만료되었습니다';
+        btnResend.style.display = 'block';
+      }
+    }, 1000);
+  }
+
+  async function doRequestOTP(btn) {
+    btn.disabled = true;
+    btn.textContent = '발송 중...';
+    errorEl.style.display = 'none';
+
+    try {
+      const result = await requestOTP();
+      if (result.success) {
+        step1.style.display = 'none';
+        step2.style.display = 'block';
+        descEl.textContent = '텔레그램으로 전송된 인증번호를 입력하세요';
+        codeInput.focus();
+        startTimer();
+      } else {
+        errorEl.textContent = result.error || '발송 실패. 다시 시도해주세요.';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '인증번호 요청';
+      }
+    } catch (e) {
+      errorEl.textContent = '서버 연결 실패: ' + e.message;
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = '인증번호 요청';
+    }
+  }
+
+  // Step 1: 인증번호 요청
+  btnRequest.addEventListener('click', () => doRequestOTP(btnRequest));
+
+  // Step 2: 인증번호 검증
+  btnVerify.addEventListener('click', async () => {
+    const code = codeInput.value.trim();
+    if (code.length !== 6) {
+      errorEl.textContent = '6자리 인증번호를 입력하세요';
       errorEl.style.display = 'block';
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = '로그인 중...';
+    btnVerify.disabled = true;
+    btnVerify.textContent = '확인 중...';
     errorEl.style.display = 'none';
 
-    const result = await login(password);
+    const result = await verifyOTP(code);
 
     if (result.success) {
+      if (timerId) clearInterval(timerId);
       modal.remove();
       window.location.reload();
     } else {
-      errorEl.textContent = '비밀번호가 올바르지 않습니다';
+      errorEl.textContent = result.error || '인증 실패';
       errorEl.style.display = 'block';
-      submitBtn.disabled = false;
-      submitBtn.textContent = '로그인';
-      passwordInput.value = '';
-      passwordInput.focus();
+      btnVerify.disabled = false;
+      btnVerify.textContent = '로그인';
+      codeInput.value = '';
+      codeInput.focus();
     }
   });
 
-  passwordInput.focus();
+  // 엔터키
+  codeInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') btnVerify.click();
+  });
+
+  // 숫자만 입력
+  codeInput.addEventListener('input', () => {
+    codeInput.value = codeInput.value.replace(/\D/g, '');
+  });
+
+  // 재발송
+  btnResend.addEventListener('click', async () => {
+    btnResend.style.display = 'none';
+    errorEl.style.display = 'none';
+    const result = await requestOTP();
+    if (result.success) {
+      startTimer();
+      codeInput.value = '';
+      codeInput.focus();
+    } else {
+      errorEl.textContent = '재발송 실패. 다시 시도해주세요.';
+      errorEl.style.display = 'block';
+      btnResend.style.display = 'block';
+    }
+  });
 }
 
 // 페이지 로드 시 인증 체크
@@ -195,4 +308,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 전역 함수 등록
-window.adminAuth = { checkAuth, login, logout, showLoginModal };
+window.adminAuth = { checkAuth, logout, showLoginModal };

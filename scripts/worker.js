@@ -7,7 +7,7 @@
 //   - AIRTABLE_TOKEN, AIRTABLE_BASE_ID, AIRTABLE_TABLE_ID
 //   - TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 //   - GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN
-//   - ADMIN_PASSWORD (wrangler.toml [vars])
+//   - OTP_KV (KV namespace binding)
 // ================================================
 
 const CORS_HEADERS = {
@@ -709,17 +709,53 @@ export default {
     const path = url.pathname;
 
     try {
-      // 인증
-      if (path === '/auth' && request.method === 'POST') {
-        const { password } = await request.json();
-        if (password === env.ADMIN_PASSWORD) {
-          return new Response(JSON.stringify({
-            success: true, token: crypto.randomUUID(), expiresIn: 24 * 60 * 60 * 1000
-          }), { headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
-        }
-        return new Response(JSON.stringify({ success: false, error: '비밀번호가 올바르지 않습니다' }), {
-          status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      // OTP 요청
+      if (path === '/auth/otp' && request.method === 'POST') {
+        const code = String(Math.floor(100000 + Math.random() * 900000));
+        await env.OTP_KV.put('admin_otp', code, { expirationTtl: 300 });
+
+        const msg = `🔐 <b>K-자금컴퍼니 관리자 인증</b>\n\n인증번호: <code>${code}</code>\n\n⏱ 5분 내 입력해주세요.`;
+        const tgRes = await fetch(
+          `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: env.TELEGRAM_CHAT_ID,
+              text: msg,
+              parse_mode: 'HTML'
+            })
+          }
+        );
+
+        const tgOk = tgRes.ok;
+        return new Response(JSON.stringify({ success: tgOk, error: tgOk ? null : '텔레그램 발송 실패' }), {
+          status: tgOk ? 200 : 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
         });
+      }
+
+      // OTP 검증
+      if (path === '/auth' && request.method === 'POST') {
+        const { code } = await request.json();
+        const stored = await env.OTP_KV.get('admin_otp');
+
+        if (!stored) {
+          return new Response(JSON.stringify({ success: false, error: '인증번호가 만료되었습니다. 다시 요청해주세요.' }), {
+            status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        }
+
+        if (code !== stored) {
+          return new Response(JSON.stringify({ success: false, error: '인증번호가 올바르지 않습니다' }), {
+            status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        }
+
+        await env.OTP_KV.delete('admin_otp');
+        return new Response(JSON.stringify({
+          success: true, token: crypto.randomUUID(), expiresIn: 24 * 60 * 60 * 1000
+        }), { headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
       }
 
       // 헬스 체크
