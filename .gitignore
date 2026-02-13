@@ -3,9 +3,10 @@
 .env.local
 .env.*.local
 
-# Session handoff files
-NEXT_SESSION_REQUEST.md
+# Session handoff files (may contain credentials)
+NEXT_SESSION*.md
 SESSION_*.md
+*핸드오프*
 
 # Node modules
 node_modules/
@@ -37,4 +38,11 @@ opencode/
 # Vercel
 .vercel
 
-.vercel
+# OG image generation scripts (temp)
+scripts/generate-og-images*
+
+# Credentials / secrets
+*.pem
+*.key
+credentials.json
+service-account*.json
