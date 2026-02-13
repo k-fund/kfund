@@ -347,7 +347,7 @@ function buildTelegramMessage(fields, submitDate, submitTime) {
   }
 
   msg += '\n📅 ' + submitDate + ' ' + submitTime;
-  msg += '\n\n📋 <a href="https://airtable.com/app5d0aevBlybtHhg">접수내역 확인하기</a>';
+  msg += '\n\n📋 <a href="https://k-fund.kr/admin/leads.html">접수관리 바로가기</a>';
   return msg;
 }
 
@@ -481,6 +481,9 @@ async function handleBoardAPI(request, env, path) {
   // GET /board or /posts
   if (method === 'GET' && (path === '/board' || path === '/posts')) {
     try {
+      const url = new URL(request.url);
+      const limit = parseInt(url.searchParams.get('limit')) || 0;
+
       const airtableResponse = await fetch(
         `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/board2?sort[0][field]=date&sort[0][direction]=desc`,
         { headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` } }
@@ -493,7 +496,7 @@ async function handleBoardAPI(request, env, path) {
       }
 
       const data = await airtableResponse.json();
-      const records = (data.records || []).map(record => ({
+      let records = (data.records || []).map(record => ({
         id: record.id,
         제목: record.fields['title'] || '',
         내용: record.fields['content'] || '',
@@ -503,10 +506,28 @@ async function handleBoardAPI(request, env, path) {
         태그: record.fields['tags'] || record.fields['tag'] || '',
         작성일: record.fields['date'] || '',
         조회수: record.fields['views'] || 0,
-        게시여부: record.fields['isPublic'] !== false
+        게시여부: record.fields['isPublic'] !== false,
+        slug: record.fields['slug'] || ''
       }));
 
-      return new Response(JSON.stringify({ records }), {
+      if (limit > 0) records = records.slice(0, limit);
+
+      // post.html 관련글에서 사용하는 영문키 posts 배열도 함께 반환
+      const posts = records.map(r => ({
+        id: r.id,
+        title: r.제목,
+        content: r.내용,
+        description: r.요약,
+        category: r.카테고리,
+        thumbnail: r.썸네일URL,
+        tags: r.태그,
+        date: r.작성일,
+        views: r.조회수,
+        isPublic: r.게시여부,
+        slug: r.slug
+      }));
+
+      return new Response(JSON.stringify({ records, posts }), {
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
       });
     } catch (error) {
@@ -523,7 +544,9 @@ async function handleBoardAPI(request, env, path) {
       const fields = {
         title: data.제목 || '',
         content: data.내용 || '',
+        summary: data.요약 || '',
         category: data.카테고리 || '',
+        tags: data.태그 || '',
         thumbnailUrl: data.썸네일URL || '',
         date: data.작성일 || formatDateKST(new Date()),
         isPublic: data.게시여부 !== false
@@ -579,7 +602,9 @@ async function handleBoardAPI(request, env, path) {
       const fields = {};
       if (data.제목 !== undefined) fields.title = data.제목;
       if (data.내용 !== undefined) fields.content = data.내용;
+      if (data.요약 !== undefined) fields.summary = data.요약;
       if (data.카테고리 !== undefined) fields.category = data.카테고리;
+      if (data.태그 !== undefined) fields.tags = data.태그;
       if (data.썸네일URL !== undefined) fields.thumbnailUrl = data.썸네일URL;
       if (data.작성일 !== undefined) fields.date = data.작성일;
       if (data.게시여부 !== undefined) fields.isPublic = data.게시여부;
@@ -670,12 +695,12 @@ async function handleBoardAPI(request, env, path) {
         id: record.id,
         title: record.fields['title'] || '',
         content: record.fields['content'] || '',
-        summary: record.fields['content']?.substring(0, 100) || '',
-        category: record.fields['tag'] || '',
+        description: record.fields['summary'] || record.fields['content']?.substring(0, 150) || '',
+        category: record.fields['category'] || record.fields['tag'] || '',
         thumbnail: record.fields['thumbnailUrl'] || '',
-        tags: record.fields['tag'] || '',
+        tags: record.fields['tags'] || record.fields['tag'] || '',
         date: record.fields['date'] || '',
-        views: 0,
+        views: record.fields['views'] || 0,
         isPublic: record.fields['isPublic'] || false,
         slug: record.fields['slug'] || ''
       };
@@ -936,6 +961,481 @@ async function handleEmployeesAPI(request, env, path) {
 }
 
 // ================================================
+// GA4 Analytics API (Google Analytics Data API v1beta)
+// ================================================
+
+// Base64URL 인코딩 (JWT용)
+function base64url(source) {
+  let str = '';
+  const bytes = new Uint8Array(source);
+  for (let i = 0; i < bytes.byteLength; i++) str += String.fromCharCode(bytes[i]);
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+// PEM → CryptoKey 변환
+async function importPrivateKey(pem) {
+  const pemContents = pem.replace(/-----BEGIN PRIVATE KEY-----/, '').replace(/-----END PRIVATE KEY-----/, '').replace(/\s/g, '');
+  const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+  return crypto.subtle.importKey('pkcs8', binaryDer, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+}
+
+// JWT 생성 → Google OAuth2 액세스 토큰 교환
+async function getGoogleAccessToken(env) {
+  const sa = JSON.parse(env.GA_SERVICE_ACCOUNT_JSON);
+  const now = Math.floor(Date.now() / 1000);
+
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const payload = {
+    iss: sa.client_email,
+    scope: 'https://www.googleapis.com/auth/analytics.readonly',
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now,
+    exp: now + 3600
+  };
+
+  const enc = new TextEncoder();
+  const headerB64 = base64url(enc.encode(JSON.stringify(header)));
+  const payloadB64 = base64url(enc.encode(JSON.stringify(payload)));
+  const sigInput = `${headerB64}.${payloadB64}`;
+
+  const key = await importPrivateKey(sa.private_key);
+  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, enc.encode(sigInput));
+  const jwt = `${sigInput}.${base64url(signature)}`;
+
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
+  });
+
+  const tokenData = await tokenRes.json();
+  if (!tokenData.access_token) throw new Error('토큰 발급 실패: ' + JSON.stringify(tokenData));
+  return tokenData.access_token;
+}
+
+// GA4 Data API 호출 헬퍼
+async function ga4RunReport(accessToken, propertyId, body) {
+  const res = await fetch(
+    `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
+    {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    const msg = data.error?.message || JSON.stringify(data);
+    throw new Error(`GA4 API ${res.status}: ${msg}`);
+  }
+  return data;
+}
+
+// 기간 문자열 생성 (daysAgo → YYYY-MM-DD)
+function daysAgoDate(days) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString().split('T')[0];
+}
+
+// GA4 Analytics 메인 핸들러
+async function handleAnalyticsAPI(request, env, url, path) {
+  if (!env.GA_SERVICE_ACCOUNT_JSON || !env.GA_PROPERTY_ID) {
+    return new Response(JSON.stringify({
+      error: 'GA4 설정 필요',
+      message: 'GA_SERVICE_ACCOUNT_JSON과 GA_PROPERTY_ID 환경변수를 설정해주세요.'
+    }), { status: 503, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
+  }
+
+  try {
+    const accessToken = await getGoogleAccessToken(env);
+    const propertyId = env.GA_PROPERTY_ID;
+
+    // GET /analytics/all?period=7 or period=daily/weekly/monthly
+    if (path === '/analytics/all') {
+      const rawPeriod = url.searchParams.get('period') || '7';
+      const periodMap = { daily: 1, weekly: 7, monthly: 30 };
+      const period = periodMap[rawPeriod] || parseInt(rawPeriod) || 7;
+      const startDate = daysAgoDate(period);
+      const endDate = daysAgoDate(0);
+      const prevStartDate = daysAgoDate(period * 2);
+      const prevEndDate = daysAgoDate(period + 1);
+
+      // 병렬 리포트 요청
+      const [overview, pages, sources, devices, trend, prevOverview] = await Promise.all([
+        // 1. 개요 (방문자수, 페이지뷰, 세션, 이벤트수, 평균세션시간)
+        ga4RunReport(accessToken, propertyId, {
+          dateRanges: [{ startDate, endDate }],
+          metrics: [
+            { name: 'activeUsers' }, { name: 'screenPageViews' },
+            { name: 'sessions' }, { name: 'eventCount' },
+            { name: 'averageSessionDuration' }, { name: 'newUsers' },
+            { name: 'bounceRate' }
+          ]
+        }),
+        // 2. 인기 페이지
+        ga4RunReport(accessToken, propertyId, {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'pagePath' }, { name: 'pageTitle' }],
+          metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }],
+          orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+          limit: 10
+        }),
+        // 3. 유입 소스
+        ga4RunReport(accessToken, propertyId, {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'sessionSource' }],
+          metrics: [{ name: 'sessions' }, { name: 'activeUsers' }],
+          orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+          limit: 10
+        }),
+        // 4. 디바이스
+        ga4RunReport(accessToken, propertyId, {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'deviceCategory' }],
+          metrics: [{ name: 'activeUsers' }, { name: 'sessions' }],
+          orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
+        }),
+        // 5. 일별 추이
+        ga4RunReport(accessToken, propertyId, {
+          dateRanges: [{ startDate, endDate }],
+          dimensions: [{ name: 'date' }],
+          metrics: [{ name: 'activeUsers' }, { name: 'screenPageViews' }, { name: 'sessions' }],
+          orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }]
+        }),
+        // 6. 이전 기간 개요 (비교용)
+        ga4RunReport(accessToken, propertyId, {
+          dateRanges: [{ startDate: prevStartDate, endDate: prevEndDate }],
+          metrics: [
+            { name: 'activeUsers' }, { name: 'screenPageViews' },
+            { name: 'sessions' }, { name: 'averageSessionDuration' },
+            { name: 'bounceRate' }
+          ]
+        })
+      ]);
+
+      // 응답 데이터 구성 (대시보드 형식에 맞춤)
+      const getMetricVal = (report, idx) => {
+        const rows = report.rows || [];
+        return rows.length > 0 ? parseFloat(rows[0].metricValues[idx].value) : 0;
+      };
+
+      const calcChange = (current, previous) => {
+        if (previous === 0) return current > 0 ? 100 : 0;
+        return Math.round(((current - previous) / previous) * 100);
+      };
+
+      const formatDuration = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = Math.round(seconds % 60);
+        return m > 0 ? `${m}분 ${s}초` : `${s}초`;
+      };
+
+      // 현재/이전 기간 값
+      const curUsers = getMetricVal(overview, 0);
+      const curPageViews = getMetricVal(overview, 1);
+      const curSessions = getMetricVal(overview, 2);
+      const curEventCount = getMetricVal(overview, 3);
+      const curDuration = getMetricVal(overview, 4);
+      const curNewUsers = getMetricVal(overview, 5);
+      const curBounce = getMetricVal(overview, 6);
+
+      const prevUsers = getMetricVal(prevOverview, 0);
+      const prevPageViews = getMetricVal(prevOverview, 1);
+      const prevSessions = getMetricVal(prevOverview, 2);
+      const prevDuration = getMetricVal(prevOverview, 3);
+      const prevBounce = getMetricVal(prevOverview, 4);
+
+      // 트래픽 소스 퍼센트 계산
+      const sourceRows = (sources.rows || []).map(r => ({
+        source: r.dimensionValues[0].value || '(direct)',
+        sessions: parseInt(r.metricValues[0].value),
+        users: parseInt(r.metricValues[1].value)
+      }));
+      const totalSessions = sourceRows.reduce((sum, s) => sum + s.sessions, 0);
+
+      const result = {
+        period,
+        overview: {
+          visitors: { value: curUsers, change: calcChange(curUsers, prevUsers) },
+          pageviews: { value: curPageViews, change: calcChange(curPageViews, prevPageViews) },
+          duration: { value: formatDuration(curDuration), change: calcChange(curDuration, prevDuration) },
+          bounceRate: { value: Math.round(curBounce * 100), change: calcChange(curBounce, prevBounce) },
+          sessions: curSessions,
+          newUsers: curNewUsers,
+          eventCount: curEventCount
+        },
+        pages: (pages.rows || []).map(r => ({
+          path: r.dimensionValues[0].value,
+          title: r.dimensionValues[1].value,
+          views: parseInt(r.metricValues[0].value),
+          users: parseInt(r.metricValues[1].value)
+        })),
+        traffic: {
+          sources: sourceRows.map(s => ({
+            source: s.source,
+            sessions: s.sessions,
+            percentage: totalSessions > 0 ? Math.round((s.sessions / totalSessions) * 100) : 0
+          }))
+        },
+        sources: sourceRows,
+        devices: (devices.rows || []).map(r => ({
+          device: r.dimensionValues[0].value,
+          users: parseInt(r.metricValues[0].value),
+          sessions: parseInt(r.metricValues[1].value)
+        })),
+        trend: {
+          trend: (trend.rows || []).map(r => ({
+            date: r.dimensionValues[0].value,
+            visitors: parseInt(r.metricValues[0].value),
+            pageviews: parseInt(r.metricValues[1].value),
+            sessions: parseInt(r.metricValues[2].value)
+          }))
+        }
+      };
+
+      return new Response(JSON.stringify(result), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // GET /history/cached?days=7 (일별 데이터 — 대시보드 형식)
+    if (path === '/history/cached' || path === '/history/stats') {
+      const days = parseInt(url.searchParams.get('days')) || 7;
+      const startDate = daysAgoDate(days);
+      const endDate = daysAgoDate(0);
+
+      const report = await ga4RunReport(accessToken, propertyId, {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'date' }],
+        metrics: [
+          { name: 'activeUsers' }, { name: 'screenPageViews' },
+          { name: 'sessions' }, { name: 'newUsers' },
+          { name: 'averageSessionDuration' }, { name: 'bounceRate' }
+        ],
+        orderBys: [{ dimension: { dimensionName: 'date' }, desc: false }]
+      });
+
+      const data = (report.rows || []).map(r => {
+        const rawDate = r.dimensionValues[0].value; // YYYYMMDD
+        const formattedDate = rawDate.length === 8
+          ? `${rawDate.slice(0,4)}-${rawDate.slice(4,6)}-${rawDate.slice(6,8)}`
+          : rawDate;
+        return {
+          date: formattedDate,
+          visitors: parseInt(r.metricValues[0].value),
+          pageviews: parseInt(r.metricValues[1].value),
+          sessions: parseInt(r.metricValues[2].value),
+          new_users: parseInt(r.metricValues[3].value),
+          avg_duration: parseFloat(r.metricValues[4].value),
+          bounce_rate: parseFloat(r.metricValues[5].value)
+        };
+      });
+
+      return new Response(JSON.stringify({ data, days }), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify({ error: 'Not found' }), {
+      status: 404, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// ================================================
+// 일별통계 수집 + Airtable 저장 + 텔레그램 리포트
+// ================================================
+
+const STATS_TABLE = encodeURIComponent('일별통계');
+
+function getYesterdayKST() {
+  const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  now.setDate(now.getDate() - 1);
+  return now.toISOString().split('T')[0];
+}
+
+async function collectAndSaveDailyAnalytics(env) {
+  const targetDate = getYesterdayKST();
+  const accessToken = await getGoogleAccessToken(env);
+  const propertyId = env.GA_PROPERTY_ID;
+
+  const [summary, trafficSources, deviceData, topPages] = await Promise.all([
+    ga4RunReport(accessToken, propertyId, {
+      dateRanges: [{ startDate: targetDate, endDate: targetDate }],
+      metrics: [
+        { name: 'totalUsers' }, { name: 'screenPageViews' },
+        { name: 'averageSessionDuration' }, { name: 'bounceRate' },
+        { name: 'sessions' }, { name: 'newUsers' }
+      ]
+    }),
+    ga4RunReport(accessToken, propertyId, {
+      dateRanges: [{ startDate: targetDate, endDate: targetDate }],
+      dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+      metrics: [{ name: 'sessions' }],
+      orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+      limit: 10
+    }),
+    ga4RunReport(accessToken, propertyId, {
+      dateRanges: [{ startDate: targetDate, endDate: targetDate }],
+      dimensions: [{ name: 'deviceCategory' }],
+      metrics: [{ name: 'activeUsers' }],
+      orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }]
+    }),
+    ga4RunReport(accessToken, propertyId, {
+      dateRanges: [{ startDate: targetDate, endDate: targetDate }],
+      dimensions: [{ name: 'pagePath' }],
+      metrics: [{ name: 'screenPageViews' }],
+      orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+      limit: 10
+    })
+  ]);
+
+  const getVal = (report, idx) => {
+    const rows = report.rows || [];
+    return rows.length > 0 ? parseFloat(rows[0].metricValues[idx].value) : 0;
+  };
+
+  const visitors = getVal(summary, 0);
+  const pageViews = getVal(summary, 1);
+  const avgDuration = Math.round(getVal(summary, 2));
+  const bounceRate = Math.round(getVal(summary, 3) * 100);
+  const sessions = getVal(summary, 4);
+  const newUsers = getVal(summary, 5);
+
+  const totalTrafficSessions = (trafficSources.rows || []).reduce((s, r) => s + parseInt(r.metricValues[0].value), 0);
+  const trafficArr = (trafficSources.rows || []).map(r => {
+    const count = parseInt(r.metricValues[0].value);
+    return { source: r.dimensionValues[0].value, count, percent: totalTrafficSessions > 0 ? Math.round((count / totalTrafficSessions) * 100) : 0 };
+  });
+
+  const totalDeviceUsers = (deviceData.rows || []).reduce((s, r) => s + parseInt(r.metricValues[0].value), 0);
+  const deviceArr = (deviceData.rows || []).map(r => {
+    const count = parseInt(r.metricValues[0].value);
+    return { type: r.dimensionValues[0].value, count, percent: totalDeviceUsers > 0 ? Math.round((count / totalDeviceUsers) * 100) : 0 };
+  });
+
+  const pagesArr = (topPages.rows || []).map(r => ({
+    path: r.dimensionValues[0].value,
+    views: parseInt(r.metricValues[0].value)
+  }));
+
+  // Airtable upsert
+  const fields = {
+    '날짜': targetDate,
+    '방문자': visitors,
+    '페이지뷰': pageViews,
+    '세션': sessions,
+    '신규방문자': newUsers,
+    '평균체류초': avgDuration,
+    '이탈률': bounceRate,
+    '트래픽소스': JSON.stringify(trafficArr),
+    '상위페이지': JSON.stringify(pagesArr),
+    '기기분포': JSON.stringify(deviceArr)
+  };
+
+  const filterFormula = encodeURIComponent(`{날짜}='${targetDate}'`);
+  const checkRes = await fetch(
+    `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${STATS_TABLE}?filterByFormula=${filterFormula}`,
+    { headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` } }
+  );
+  const checkData = await checkRes.json();
+
+  let airtableAction;
+  if (checkData.records && checkData.records.length > 0) {
+    const patchRes = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${STATS_TABLE}/${checkData.records[0].id}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields })
+    });
+    if (!patchRes.ok) throw new Error('Airtable 업데이트 실패: ' + (await patchRes.text()));
+    airtableAction = '업데이트';
+  } else {
+    const postRes = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${STATS_TABLE}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields })
+    });
+    if (!postRes.ok) throw new Error('Airtable 생성 실패: ' + (await postRes.text()));
+    airtableAction = '신규 생성';
+  }
+
+  return { targetDate, visitors, pageViews, sessions, newUsers, avgDuration, bounceRate, trafficArr, pagesArr, deviceArr, airtableAction };
+}
+
+async function sendDailyTelegramReport(env, data) {
+  const { targetDate, visitors, pageViews, sessions, newUsers, avgDuration, bounceRate, trafficArr, pagesArr, airtableAction } = data;
+  const dur = avgDuration >= 60 ? `${Math.floor(avgDuration / 60)}분 ${avgDuration % 60}초` : `${avgDuration}초`;
+
+  let msg = `📊 <b>K-자금컴퍼니 일별통계</b>\n\n`;
+  msg += `📅 ${targetDate}\n`;
+  msg += `├ 방문자: <b>${visitors}</b>\n`;
+  msg += `├ 페이지뷰: <b>${pageViews}</b>\n`;
+  msg += `├ 세션: ${sessions}\n`;
+  msg += `├ 신규방문: ${newUsers}\n`;
+  msg += `├ 평균체류: ${dur}\n`;
+  msg += `└ 이탈률: ${bounceRate}%\n`;
+
+  if (trafficArr.length > 0) {
+    msg += `\n🔗 <b>유입경로</b>\n`;
+    const top5 = trafficArr.slice(0, 5);
+    top5.forEach((s, i) => {
+      msg += `${i === top5.length - 1 ? '└' : '├'} ${s.source}: ${s.count}회 (${s.percent}%)\n`;
+    });
+  }
+
+  if (pagesArr.length > 0) {
+    msg += `\n📄 <b>상위페이지</b>\n`;
+    const top5 = pagesArr.slice(0, 5);
+    top5.forEach((p, i) => {
+      msg += `${i === top5.length - 1 ? '└' : '├'} ${p.path}: ${p.views}뷰\n`;
+    });
+  }
+
+  msg += `\n✅ Airtable ${airtableAction}`;
+
+  await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: msg, parse_mode: 'HTML' })
+  });
+}
+
+// Airtable에서 저장된 히스토리 조회
+async function getStoredHistory(env, days) {
+  const startDate = daysAgoDate(days);
+  const sortField = encodeURIComponent('날짜');
+  const res = await fetch(
+    `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${STATS_TABLE}?sort[0][field]=${sortField}&sort[0][direction]=asc`,
+    { headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` } }
+  );
+  const data = await res.json();
+  if (data.error) throw new Error(JSON.stringify(data.error));
+  return (data.records || [])
+    .filter(r => {
+      const d = r.fields['날짜'];
+      return d && d >= startDate;
+    })
+    .map(r => ({
+      date: (r.fields['날짜'] || '').replace(/-/g, ''),
+      visitors: r.fields['방문자'] || 0,
+      pageViews: r.fields['페이지뷰'] || 0,
+      sessions: r.fields['세션'] || 0,
+      newUsers: r.fields['신규방문자'] || 0,
+      avgDuration: r.fields['평균체류초'] || 0,
+      bounceRate: r.fields['이탈률'] || 0,
+      trafficSources: r.fields['트래픽소스'] ? JSON.parse(r.fields['트래픽소스']) : [],
+      topPages: r.fields['상위페이지'] ? JSON.parse(r.fields['상위페이지']) : [],
+      devices: r.fields['기기분포'] ? JSON.parse(r.fields['기기분포']) : []
+    }));
+}
+
+// ================================================
 // 메인 라우터
 // ================================================
 
@@ -1012,6 +1512,23 @@ export default {
         }), { headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } });
       }
 
+      // R2 이미지 서빙 (GET /r2/board/...)
+      if (path.startsWith('/r2/') && request.method === 'GET') {
+        if (!env.BUCKET) {
+          return new Response('R2 not configured', { status: 500 });
+        }
+        const objectKey = path.substring(4); // '/r2/board/xxx.webp' → 'board/xxx.webp'
+        const object = await env.BUCKET.get(objectKey);
+        if (!object) {
+          return new Response('Not Found', { status: 404 });
+        }
+        const headers = new Headers();
+        headers.set('Content-Type', object.httpMetadata?.contentType || 'image/webp');
+        headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+        headers.set('Access-Control-Allow-Origin', '*');
+        return new Response(object.body, { headers });
+      }
+
       // 이미지 업로드
       if (path === '/upload' && request.method === 'POST') {
         if (!env.BUCKET) {
@@ -1054,6 +1571,47 @@ export default {
         return await handleLeadsAPI(request, env, path);
       }
 
+      // 관련 게시글 API
+      if (path === '/api/posts/related' && request.method === 'GET') {
+        try {
+          const slug = url.searchParams.get('slug') || '';
+          const limit = parseInt(url.searchParams.get('limit')) || 3;
+
+          const airtableResponse = await fetch(
+            `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/board2?sort[0][field]=date&sort[0][direction]=desc`,
+            { headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` } }
+          );
+
+          if (!airtableResponse.ok) {
+            return new Response(JSON.stringify({ posts: [] }), {
+              headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+            });
+          }
+
+          const data = await airtableResponse.json();
+          const posts = (data.records || [])
+            .filter(r => r.fields['slug'] !== slug)
+            .slice(0, limit)
+            .map(r => ({
+              id: r.id,
+              title: r.fields['title'] || '',
+              summary: r.fields['content']?.substring(0, 100) || '',
+              category: r.fields['tag'] || '',
+              thumbnail: r.fields['thumbnailUrl'] || '',
+              date: r.fields['date'] || '',
+              slug: r.fields['slug'] || ''
+            }));
+
+          return new Response(JSON.stringify({ posts }), {
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ posts: [], error: error.message }), {
+            status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        }
+      }
+
       // 게시판
       if (path === '/board' || path.startsWith('/board/') || path === '/posts' || path.startsWith('/posts/')) {
         return await handleBoardAPI(request, env, path);
@@ -1069,6 +1627,41 @@ export default {
         return await handleEmployeesAPI(request, env, path);
       }
 
+      // GA4 Analytics (실시간)
+      if (path === '/analytics/all' || path.startsWith('/history/')) {
+        return await handleAnalyticsAPI(request, env, url, path);
+      }
+
+      // 저장된 일별통계 조회 (Airtable)
+      if (path === '/analytics/stored') {
+        try {
+          const days = parseInt(url.searchParams.get('days')) || 30;
+          const history = await getStoredHistory(env, days);
+          return new Response(JSON.stringify({ history, days }), {
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        }
+      }
+
+      // 수동 일별통계 수집 트리거 (테스트용)
+      if (path === '/analytics/collect' && request.method === 'POST') {
+        try {
+          const data = await collectAndSaveDailyAnalytics(env);
+          await sendDailyTelegramReport(env, data);
+          return new Response(JSON.stringify({ success: true, ...data }), {
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        } catch (error) {
+          return new Response(JSON.stringify({ success: false, error: error.message }), {
+            status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          });
+        }
+      }
+
       // 404
       return new Response(JSON.stringify({ error: 'Not found', path }), {
         status: 404, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
@@ -1077,6 +1670,25 @@ export default {
     } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), {
         status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  },
+
+  // 매일 09:00 KST (00:00 UTC) 크론 트리거
+  async scheduled(event, env, ctx) {
+    try {
+      const data = await collectAndSaveDailyAnalytics(env);
+      await sendDailyTelegramReport(env, data);
+    } catch (error) {
+      const targetDate = getYesterdayKST();
+      await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: env.TELEGRAM_CHAT_ID,
+          text: `🚨 <b>K-자금컴퍼니 일별통계 오류</b>\n\n📅 대상: ${targetDate}\n❌ ${String(error.message || error).substring(0, 500)}`,
+          parse_mode: 'HTML'
+        })
       });
     }
   }

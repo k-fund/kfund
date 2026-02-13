@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NBTKZYCKCV"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '');
+      gtag('config', 'G-NBTKZYCKCV');
     </script>
     <meta charset="UTF-8">
     <meta name="naver-site-verification" content="" />
@@ -20,9 +20,13 @@
     <meta property="og:type" content="article">
     <meta property="og:title" content="2026년 희망리턴패키지 356억원 - 폐업부터 재기까지 원스톱 지원 - K-자금컴퍼니">
     <meta property="og:description" content="2026년 희망리턴패키지 완벽 가이드">
-    <meta property="og:image" content="https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/posts/hope-return-2026-v2.png">
-    <meta property="og:url" content="https://k-fund.co.kr/marketing-news/2026-hope-return-package">
+    <meta property="og:image" content="https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/board/2026-hope-return-package.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:url" content="https://k-fund.kr/marketing-news/2026-hope-return-package">
     <meta property="og:site_name" content="K-자금컴퍼니">
+    <meta property="og:locale" content="ko_KR">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -327,7 +331,7 @@
         }
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
         }
         .summary-item {
@@ -836,6 +840,7 @@
                 padding: 24px 16px 60px;
             }
             .related-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
 
             .article-title {
                 font-size: 26px;
@@ -954,7 +959,7 @@
 
         <!-- 히어로 이미지 -->
         <div class="hero-image">
-            <img src="https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/posts/hope-return-package-2026-v2.png" alt="희망리턴패키지 - 재창업 희망 이미지" loading="lazy">
+            <img src="https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/board/2026-hope-return-package.webp" alt="희망리턴패키지 - 재창업 희망 이미지" loading="lazy">
         </div>
 
         <!-- 핵심 요약 카드 -->
@@ -1507,7 +1512,7 @@
                 const grid = document.getElementById('relatedGrid');
                 grid.innerHTML = posts.map(post => `
                     <a href="/marketing-news/${post.slug}" class="related-card">
-                        <img src="${post.thumbnailUrl || 'https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/images/default-thumb.png'}" alt="${post.title}" class="related-card-image" loading="lazy">
+                        <img src="${post.thumbnailUrl || 'https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/board/2026-policy-fund-overview.jpg'}" alt="${post.title}" class="related-card-image" loading="lazy">
                         <div class="related-card-content">
                             <span class="related-card-category">${post.category || '정책자금'}</span>
                             <h4 class="related-card-title">${post.title}</h4>

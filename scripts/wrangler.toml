@@ -5,6 +5,10 @@ account_id = "c5eb7f24ae078dc9caede7e6d4fc3f41"
 
 # Worker URL: https://kfund.t63755720.workers.dev
 
+# 매일 09:00 KST (00:00 UTC) — 전날 방문통계 수집 + 텔레그램 리포트
+[triggers]
+crons = ["0 0 * * *"]
+
 [vars]
 
 # KV 바인딩 (OTP 인증용)

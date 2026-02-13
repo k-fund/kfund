@@ -614,6 +614,15 @@
           </span>
           <span class="nav-text">접수내역</span>
         </a>
+        <a href="/admin/email.html" class="nav-item">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </span>
+          <span class="nav-text">이메일 발송</span>
+        </a>
         <a href="/admin/board.html" class="nav-item">
           <span class="nav-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1136,6 +1145,12 @@
       } catch (e) {
         console.error('Compare load error:', e);
       }
+
+      // 남은 로딩 스켈레톤 정리
+      document.querySelectorAll('.loading-skeleton').forEach(el => {
+        el.classList.remove('loading-skeleton');
+        if (!el.textContent.trim()) el.textContent = '-';
+      });
     }
 
     // API 미설정 상태 표시
@@ -1388,6 +1403,9 @@
       // 지역별
       if (data.geography) {
         renderGeography(data.geography);
+      } else {
+        document.getElementById('geography-list').innerHTML =
+          '<li class="data-list-item"><span class="data-list-label" style="color:var(--neutral-400)">지역 데이터는 수집 기간이 더 필요합니다</span></li>';
       }
 
       // 유입 경로

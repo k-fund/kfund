@@ -46,3 +46,5 @@ scripts/generate-og-images*
 *.key
 credentials.json
 service-account*.json
+
+.vercel

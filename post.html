@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NBTKZYCKCV"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '');
+      gtag('config', 'G-NBTKZYCKCV');
     </script>
     <meta charset="UTF-8">
     <meta name="naver-site-verification" content="" />
@@ -21,12 +21,16 @@
     <meta property="og:type" content="article">
     <meta property="og:title" content="게시글 - K-자금컴퍼니">
     <meta property="og:description" content="정부정책자금, 중소기업 지원사업 최신 정보">
-    <meta property="og:image" content="https://k-fund.co.kr/images/og/og-home.png">
-    <meta property="og:url" content="https://k-fund.co.kr/post.html">
+    <meta property="og:image" content="https://k-fund.kr/images/og/og-home.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:url" content="https://k-fund.kr/post.html">
     <meta property="og:site_name" content="K-자금컴퍼니">
+    <meta property="og:locale" content="ko_KR">
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://k-fund.co.kr/post.html">
+    <link rel="canonical" href="https://k-fund.kr/post.html">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -723,7 +727,7 @@
                     </svg>
                 </a>
                 <span class="breadcrumb-separator">›</span>
-                <a href="marketing.html">정책자금 소식</a>
+                <a href="board.html">정책자금 소식</a>
                 <span class="breadcrumb-separator">›</span>
                 <span class="breadcrumb-current" id="breadcrumb-title">게시글</span>
             </nav>
@@ -794,7 +798,7 @@
 
             <!-- 하단 네비게이션 -->
             <div class="post-nav" id="post-nav">
-                <a href="marketing.html" class="post-nav-btn">
+                <a href="board.html" class="post-nav-btn">
                     <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     목록으로
                 </a>
@@ -876,7 +880,7 @@
                     </div>
 
                     <!-- 목록으로 버튼 -->
-                    <a href="marketing.html" class="sidebar-btn">
+                    <a href="board.html" class="sidebar-btn">
                         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
@@ -1313,6 +1317,7 @@
             loadingEl.style.display = 'none';
             errorEl.style.display = 'none';
             layoutEl.style.display = 'grid';
+            document.getElementById('post-wrapper').style.display = 'block';
             navEl.style.display = 'flex';
             ctaEl.style.display = 'block';
 
@@ -1391,7 +1396,7 @@
                             const postUrl = post.slug
                                 ? `/marketing-news/${post.slug}`
                                 : `post.html?id=${post.id}`;
-                            const thumbnail = post.thumbnail || 'https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/posts/default-thumbnail.png';
+                            const thumbnail = post.thumbnail || '/images/og/og-home.png';
 
                             return `
                                 <a href="${postUrl}" class="related-card">
@@ -1422,33 +1427,87 @@
         }
 
         // 내용 파싱 함수
-        // 사용자가 엔터 한 번 → 단순 줄바꿈 (간격 없이)
-        // 사용자가 엔터 두 번 → 빈 줄로 단락 구분 (간격 있음)
+        // HTML 블록(<div>, <table> 등)은 그대로 보존하고, 텍스트 부분만 마크다운 처리
+        // 중첩 태그를 깊이 추적하여 올바르게 분리
         function parseContent(content) {
             if (!content) return '';
 
-            let html = content
-                // 헤딩
-                .replace(/^### (.+)$/gm, '<h3 style="margin: 20px 0 10px; color: #60A5FA;">$1</h3>')
-                .replace(/^## (.+)$/gm, '<h2 style="margin: 24px 0 12px; color: #93C5FD;">$1</h2>')
-                // 굵은 글씨
-                .replace(/\*\*(.+?)\*\*/g, '<strong style="color: #FFFFFF;">$1</strong>')
-                // 링크
-                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" style="color: #60A5FA;">$1</a>')
-                // 인용
-                .replace(/^> (.+)$/gm, '<blockquote style="border-left: 3px solid #3B82F6; padding-left: 15px; margin: 16px 0; color: rgba(255,255,255,0.7);">$1</blockquote>')
-                // 리스트 (연속된 항목은 간격 없이)
-                .replace(/^[-•] (.+)$/gm, '<div style="margin-left: 20px; display: flex;"><span style="margin-right: 8px;">•</span><span>$1</span></div>')
-                .replace(/^(\d+)\. (.+)$/gm, '<div style="margin-left: 20px; display: flex;"><span style="margin-right: 8px;">$1.</span><span>$2</span></div>')
-                // 섹션 헤더 (■, ●, ▶ 등)
-                .replace(/^([■●▶▷◆◇★☆]) (.+)$/gm, '<div style="font-weight: 600; color: #60A5FA; margin-top: 16px;">$1 $2</div>');
+            // HTML 블록과 텍스트를 분리 (중첩 태그 깊이 추적)
+            const blockTags = ['div', 'table', 'style'];
+            const segments = [];
+            let pos = 0;
 
-            // 줄바꿈 처리: 엔터 두 번(빈 줄) → 단락 구분, 엔터 한 번 → 단순 줄바꿈
-            html = html
-                .replace(/\n\n+/g, '</p><p style="margin-top: 16px;">')  // 빈 줄 = 새 단락
-                .replace(/\n/g, '<br>');  // 단순 엔터 = 줄바꿈만
+            while (pos < content.length) {
+                // 블록 태그 시작 찾기
+                const openMatch = content.slice(pos).match(new RegExp('<(' + blockTags.join('|') + ')[\\s>]', 'i'));
+                if (!openMatch) {
+                    segments.push({ type: 'text', content: content.slice(pos) });
+                    break;
+                }
 
-            return '<p>' + html + '</p>';
+                // 블록 태그 이전 텍스트 저장
+                if (openMatch.index > 0) {
+                    segments.push({ type: 'text', content: content.slice(pos, pos + openMatch.index) });
+                }
+
+                // 매칭되는 닫기 태그까지 깊이 추적
+                const tagName = openMatch[1].toLowerCase();
+                let depth = 0;
+                let scanPos = pos + openMatch.index;
+                let blockEnd = -1;
+                const openRe = new RegExp('<' + tagName + '[\\s>]', 'gi');
+                const closeRe = new RegExp('</' + tagName + '>', 'gi');
+
+                // 모든 열기/닫기 태그 위치 수집
+                const tags = [];
+                openRe.lastIndex = scanPos;
+                closeRe.lastIndex = scanPos;
+                let m;
+                while ((m = openRe.exec(content)) !== null) tags.push({ pos: m.index, type: 'open' });
+                while ((m = closeRe.exec(content)) !== null) tags.push({ pos: m.index, type: 'close', end: m.index + m[0].length });
+                tags.sort((a, b) => a.pos - b.pos);
+
+                for (const tag of tags) {
+                    if (tag.type === 'open') depth++;
+                    else {
+                        depth--;
+                        if (depth === 0) { blockEnd = tag.end; break; }
+                    }
+                }
+
+                if (blockEnd > 0) {
+                    segments.push({ type: 'html', content: content.slice(pos + openMatch.index, blockEnd) });
+                    pos = blockEnd;
+                } else {
+                    // 닫기 태그 없으면 텍스트로 처리
+                    segments.push({ type: 'text', content: content.slice(pos + openMatch.index, pos + openMatch.index + 1) });
+                    pos = pos + openMatch.index + 1;
+                }
+            }
+
+            // 텍스트 세그먼트만 마크다운 변환, HTML은 그대로
+            const result = segments.map(seg => {
+                if (seg.type === 'html') return seg.content;
+
+                let text = seg.content;
+                text = text
+                    .replace(/^### (.+)$/gm, '<h3 style="margin: 20px 0 10px; color: #60A5FA;">$1</h3>')
+                    .replace(/^## (.+)$/gm, '<h2 style="margin: 24px 0 12px; color: #93C5FD;">$1</h2>')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong style="color: #FFFFFF;">$1</strong>')
+                    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" style="color: #60A5FA;">$1</a>')
+                    .replace(/^> (.+)$/gm, '<blockquote style="border-left: 3px solid #3B82F6; padding-left: 15px; margin: 16px 0; color: rgba(255,255,255,0.7);">$1</blockquote>')
+                    .replace(/^[-•] (.+)$/gm, '<div style="margin-left: 20px; display: flex;"><span style="margin-right: 8px;">•</span><span>$1</span></div>')
+                    .replace(/^(\d+)\. (.+)$/gm, '<div style="margin-left: 20px; display: flex;"><span style="margin-right: 8px;">$1.</span><span>$2</span></div>')
+                    .replace(/^([■●▶▷◆◇★☆]) (.+)$/gm, '<div style="font-weight: 600; color: #60A5FA; margin-top: 16px;">$1 $2</div>');
+
+                text = text
+                    .replace(/\n\n+/g, '</p><p style="margin-top: 16px;">')
+                    .replace(/\n/g, '<br>');
+
+                return '<p>' + text + '</p>';
+            }).join('');
+
+            return result.replace(/<p>\s*<\/p>/g, '');
         }
 
         function showError() {

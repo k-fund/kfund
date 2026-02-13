@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이메일 발송 - K-자금컴퍼니</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <script src="/js/admin-auth.js"></script>
+  <style>
+    /* ========================================
+       Email Page Specific Styles
+       ======================================== */
+    .email-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--neutral-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .panel-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--neutral-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-header .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); }
+    .badge-green { background: #D1FAE5; color: #059669; }
+
+    .panel-body { padding: 20px; }
+
+    /* [LEFT] Recipient List */
+    .recipient-search {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .recipient-search input {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .recipient-search input:focus { border-color: var(--primary); }
+    .recipient-search .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--neutral-400);
+    }
+
+    .recipient-actions {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-filter {
+      padding: 4px 10px;
+      font-size: 12px;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-sm);
+      background: white;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--neutral-600);
+      transition: all 0.15s;
+    }
+    .btn-filter:hover { background: var(--neutral-50); border-color: var(--neutral-300); }
+    .btn-filter.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+    .recipient-list {
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    .recipient-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .recipient-item:hover { background: var(--neutral-50); }
+    .recipient-item.selected { background: var(--primary-light); }
+    .recipient-item input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .recipient-info { flex: 1; min-width: 0; }
+    .recipient-name { font-size: 13px; font-weight: 600; color: var(--neutral-800); }
+    .recipient-company { font-size: 12px; color: var(--neutral-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recipient-email { font-size: 11px; color: var(--neutral-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recipient-status {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .status-new { background: #DBEAFE; color: #1D4ED8; }
+    .status-progress { background: #FEF3C7; color: #D97706; }
+    .status-complete { background: #D1FAE5; color: #059669; }
+    .status-cancel { background: #FEE2E2; color: #DC2626; }
+
+    .selected-count {
+      padding: 12px 16px;
+      border-top: 1px solid var(--neutral-200);
+      font-size: 12px;
+      color: var(--neutral-500);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .selected-count strong { color: var(--primary); }
+
+    .no-email-tag {
+      font-size: 10px;
+      color: var(--neutral-400);
+      background: var(--neutral-100);
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .recipient-loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--neutral-400);
+      font-size: 13px;
+    }
+
+    /* [CENTER] Template & Form */
+    .template-selector { margin-bottom: 20px; }
+    .template-selector > label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      margin-bottom: 6px;
+    }
+    .template-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .template-card {
+      padding: 12px;
+      border: 2px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .template-card:hover { border-color: var(--neutral-300); }
+    .template-card.active { border-color: var(--primary); background: var(--primary-light); }
+    .template-card .icon { font-size: 24px; margin-bottom: 4px; }
+    .template-card .label { font-size: 12px; font-weight: 600; color: var(--neutral-700); }
+    .template-card .desc { font-size: 11px; color: var(--neutral-500); margin-top: 2px; }
+
+    .form-divider {
+      border: none;
+      border-top: 1px solid var(--neutral-200);
+      margin: 20px 0;
+    }
+
+    .email-form-group { margin-bottom: 16px; }
+    .email-form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      margin-bottom: 6px;
+    }
+    .email-form-group label .required { color: var(--error); margin-left: 2px; }
+    .email-form-group label .hint {
+      font-weight: 400;
+      font-size: 11px;
+      color: var(--neutral-400);
+      margin-left: 4px;
+    }
+    .email-form-group input,
+    .email-form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .email-form-group input:focus,
+    .email-form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(29, 0, 173, 0.08);
+    }
+    .email-form-group textarea { resize: vertical; min-height: 80px; }
+
+    .var-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .var-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      background: var(--neutral-100);
+      border: 1px solid var(--neutral-200);
+      border-radius: 4px;
+      color: var(--neutral-600);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .var-tag:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .btn-send {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      background: var(--primary);
+      color: white;
+    }
+    .btn-send:hover { background: var(--primary-dark); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Progress Bar */
+    .send-progress {
+      margin-top: 16px;
+      display: none;
+    }
+    .send-progress.visible { display: block; }
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--neutral-200);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      font-size: 12px;
+      color: var(--neutral-500);
+      text-align: center;
+    }
+
+    /* Send Result Log */
+    .send-log {
+      margin-top: 12px;
+      max-height: 160px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    .send-log-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0;
+      color: var(--neutral-600);
+    }
+    .send-log-item.success { color: var(--success); }
+    .send-log-item.fail { color: var(--error); }
+
+    /* [RIGHT] Preview */
+    .preview-toolbar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .preview-tab {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--neutral-200);
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      color: var(--neutral-500);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .preview-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .email-preview-frame {
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      background: #F5F5F5;
+      overflow: hidden;
+    }
+
+    .preview-meta {
+      padding: 12px 16px;
+      background: white;
+      border-bottom: 1px solid var(--neutral-200);
+      font-size: 12px;
+    }
+    .preview-meta-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .preview-meta-row:last-child { margin-bottom: 0; }
+    .meta-label {
+      color: var(--neutral-400);
+      width: 40px;
+      flex-shrink: 0;
+    }
+    .meta-value { color: var(--neutral-700); font-weight: 500; }
+
+    .preview-body {
+      padding: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    /* Email Template Styles */
+    .email-template {
+      max-width: 340px;
+      margin: 0 auto;
+      font-family: 'Pretendard', -apple-system, sans-serif;
+    }
+    .email-template .et-header {
+      background: linear-gradient(135deg, #0F1B2D 0%, #141414 100%);
+      color: white;
+      padding: 28px 24px;
+      border-radius: 12px 12px 0 0;
+      text-align: center;
+    }
+    .email-template .et-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 12px 0 0;
+    }
+    .email-template .et-header p {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 6px;
+    }
+    .email-template .et-notice {
+      background: #fef3c7;
+      padding: 8px 16px;
+      text-align: center;
+      font-size: 11px;
+      color: #92400e;
+      line-height: 1.5;
+      border-left: 1px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+    }
+    .email-template .et-body {
+      background: white;
+      padding: 24px 20px;
+      border: 1px solid #e5e7eb;
+      border-top: none;
+    }
+    .email-template .et-greeting {
+      background: #F5F5F5;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      border-left: 3px solid #1C2D4F;
+    }
+    .email-template .et-greeting p {
+      font-size: 13px;
+      color: #404040;
+      line-height: 1.7;
+      margin: 0;
+    }
+    .email-template .et-greeting p + p { margin-top: 8px; }
+    .email-template .et-greeting strong { color: #1C2D4F; }
+    .email-template .et-info-box {
+      background: linear-gradient(135deg, #0F1B2D 0%, #141414 100%);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .email-template .et-info-box h4 {
+      color: white;
+      font-size: 13px;
+      margin: 0 0 10px 0;
+    }
+    .email-template .et-info-box table {
+      width: 100%;
+      font-size: 11px;
+      border-collapse: separate;
+      border-spacing: 0 4px;
+    }
+    .email-template .et-info-box td {
+      padding: 6px 10px;
+      color: white;
+    }
+    .email-template .et-info-box td:first-child {
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px 0 0 6px;
+      width: 35%;
+      white-space: nowrap;
+    }
+    .email-template .et-info-box td:last-child {
+      background: rgba(255,255,255,0.1);
+      border-radius: 0 6px 6px 0;
+      font-weight: 600;
+    }
+    .email-template .et-cta {
+      background: #F5F5F5;
+      padding: 14px;
+      border-radius: 8px;
+      border-left: 3px solid #1C2D4F;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .email-template .et-cta p {
+      font-size: 13px;
+      color: #1C2D4F;
+      font-weight: 600;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .email-template .et-contact {
+      text-align: center;
+      padding: 14px 0;
+      border-top: 1px dashed #e5e7eb;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .email-template .et-contact p { margin: 0; }
+    .email-template .et-contact p + p { margin-top: 4px; }
+    .email-template .et-contact strong { color: #374151; }
+    .email-template .et-footer {
+      background: #0F1B2D;
+      border-radius: 0 0 12px 12px;
+      padding: 14px;
+      text-align: center;
+      color: white;
+    }
+    .email-template .et-footer p { margin: 0; font-size: 11px; }
+    .email-template .et-footer p + p { margin-top: 4px; }
+    .email-template .et-footer .brand { font-weight: 700; font-size: 13px; }
+
+    .var-highlight {
+      background: #FEF3C7;
+      color: #92400e;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: inherit;
+    }
+
+    /* Custom template body editor */
+    .custom-body-editor {
+      display: none;
+    }
+    .custom-body-editor.visible { display: block; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 10000;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+      box-shadow: var(--shadow-lg);
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--error); }
+    .toast.info { background: var(--primary); }
+
+    /* Responsive */
+    @media (max-width: 1280px) {
+      .email-layout {
+        grid-template-columns: 280px 1fr;
+      }
+      .preview-panel { grid-column: 1 / -1; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .email-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- 사이드바 오버레이 (모바일) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- 사이드바 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1 class="logo">K-자금컴퍼니</h1>
+        <span class="logo-sub">관리자</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="/admin/" class="nav-item">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </span>
+          <span class="nav-text">대시보드</span>
+        </a>
+        <a href="/admin/leads.html" class="nav-item">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+              <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+            </svg>
+          </span>
+          <span class="nav-text">접수내역</span>
+        </a>
+        <a href="/admin/email.html" class="nav-item active">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </span>
+          <span class="nav-text">이메일 발송</span>
+        </a>
+        <a href="/admin/board.html" class="nav-item">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </span>
+          <span class="nav-text">게시판 관리</span>
+        </a>
+        <a href="/admin/employees.html" class="nav-item">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </span>
+          <span class="nav-text">임직원 관리</span>
+        </a>
+        <a href="/admin/popups.html" class="nav-item">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          </span>
+          <span class="nav-text">팝업 관리</span>
+        </a>
+        <a href="/admin/analytics.html" class="nav-item">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </span>
+          <span class="nav-text">방문통계</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="https://k-fund.kr" class="nav-item" target="_blank">
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </span>
+          <span class="nav-text">사이트 보기</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+      <!-- 헤더 -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <div>
+            <h1 class="page-title">이메일 발송</h1>
+            <p class="page-subtitle">접수 고객에게 맞춤 이메일을 발송하세요</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="user-name">관리자</span>
+          <button class="btn-logout" onclick="logout()">로그아웃</button>
+        </div>
+      </header>
+
+      <!-- 3-Column Email Layout -->
+      <div class="email-layout">
+
+        <!-- [LEFT] 수신자 목록 -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              수신자 선택
+            </h3>
+            <span class="badge badge-blue" id="totalBadge">0건</span>
+          </div>
+          <div class="panel-body">
+            <div class="recipient-search">
+              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="recipientSearch" placeholder="이름, 기업명, 이메일 검색..." oninput="filterRecipients()">
+            </div>
+
+            <div class="recipient-actions">
+              <button class="btn-filter active" data-filter="all" onclick="setFilter(this)">전체</button>
+              <button class="btn-filter" data-filter="pending" onclick="setFilter(this)">신규</button>
+              <button class="btn-filter" data-filter="progress" onclick="setFilter(this)">상담중</button>
+              <button class="btn-filter" data-filter="email-only" onclick="setFilter(this)">이메일 있는 건만</button>
+            </div>
+
+            <div class="recipient-list" id="recipientList">
+              <div class="recipient-loading">수신자 목록을 불러오는 중...</div>
+            </div>
+          </div>
+          <div class="selected-count">
+            <span>선택 <strong id="selectedCount">0</strong> / <span id="totalRecipients">0</span> 명</span>
+            <button class="btn-filter" onclick="toggleSelectAll()" id="btnSelectAll">전체 선택</button>
+          </div>
+        </div>
+
+        <!-- [CENTER] 메일 작성 -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              메일 작성
+            </h3>
+          </div>
+          <div class="panel-body">
+            <!-- 템플릿 선택 -->
+            <div class="template-selector">
+              <label>템플릿 선택</label>
+              <div class="template-cards">
+                <div class="template-card active" data-template="receipt" onclick="selectTemplate(this)">
+                  <div class="icon">📋</div>
+                  <div class="label">접수 확인</div>
+                  <div class="desc">상담신청 접수 안내</div>
+                </div>
+                <div class="template-card" data-template="progress" onclick="selectTemplate(this)">
+                  <div class="icon">📊</div>
+                  <div class="label">진행 안내</div>
+                  <div class="desc">심사 진행상황 안내</div>
+                </div>
+                <div class="template-card" data-template="approval" onclick="selectTemplate(this)">
+                  <div class="icon">🎉</div>
+                  <div class="label">승인 축하</div>
+                  <div class="desc">자금 승인 안내</div>
+                </div>
+                <div class="template-card" data-template="custom" onclick="selectTemplate(this)">
+                  <div class="icon">✉️</div>
+                  <div class="label">직접 작성</div>
+                  <div class="desc">자유 형식 메일</div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="form-divider">
+
+            <!-- 공통 필드 -->
+            <div class="email-form-group">
+              <label>보내는 이름 <span class="required">*</span></label>
+              <input type="text" id="senderName" value="K-자금컴퍼니" placeholder="발신자 표시명" oninput="updatePreview()">
+            </div>
+
+            <div class="email-form-group">
+              <label>제목 <span class="required">*</span></label>
+              <input type="text" id="emailSubject" value="[K-자금컴퍼니] 무료진단 신청이 접수되었습니다" placeholder="이메일 제목" oninput="updatePreview()">
+            </div>
+
+            <hr class="form-divider">
+
+            <div class="email-form-group">
+              <label>담당자명 <span class="hint">(본문 삽입)</span></label>
+              <input type="text" id="staffName" value="김은희 기업심사관" placeholder="담당자명" oninput="updatePreview()">
+            </div>
+
+            <div class="email-form-group">
+              <label>회신 마감일 <span class="hint">(선택)</span></label>
+              <input type="date" id="deadline" oninput="updatePreview()">
+            </div>
+
+            <div class="email-form-group">
+              <label>추가 메시지 <span class="hint">(선택)</span></label>
+              <textarea id="extraMessage" placeholder="이메일 하단에 추가할 메시지를 입력하세요." oninput="updatePreview()"></textarea>
+            </div>
+
+            <!-- 직접작성 전용: 본문 에디터 -->
+            <div class="custom-body-editor" id="customBodyEditor">
+              <div class="email-form-group">
+                <label>본문 내용 <span class="required">*</span></label>
+                <textarea id="customBody" rows="8" placeholder="이메일 본문을 입력하세요. {{고객명}}, {{기업명}} 등의 변수를 사용할 수 있습니다." oninput="updatePreview()"></textarea>
+              </div>
+            </div>
+
+            <!-- 변수 태그 -->
+            <div>
+              <label style="font-size:12px; color:var(--neutral-500); margin-bottom:4px; display:block;">클릭하면 제목/본문에 삽입됩니다</label>
+              <div class="var-tag-row">
+                <span class="var-tag" onclick="insertVariable('{{고객명}}')">{{고객명}}</span>
+                <span class="var-tag" onclick="insertVariable('{{기업명}}')">{{기업명}}</span>
+                <span class="var-tag" onclick="insertVariable('{{자금종류}}')">{{자금종류}}</span>
+                <span class="var-tag" onclick="insertVariable('{{희망금액}}')">{{희망금액}}</span>
+                <span class="var-tag" onclick="insertVariable('{{접수일}}')">{{접수일}}</span>
+                <span class="var-tag" onclick="insertVariable('{{담당자}}')">{{담당자}}</span>
+              </div>
+            </div>
+
+            <!-- 발송 버튼 -->
+            <div class="form-actions">
+              <button class="btn-secondary" onclick="updatePreview()" style="padding:10px 20px; border:1px solid var(--neutral-200); border-radius:var(--radius-md); background:white; cursor:pointer; font-family:inherit; font-size:14px;">미리보기</button>
+              <button class="btn-send" id="btnSend" onclick="sendEmails()" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span id="btnSendText">수신자를 선택하세요</span>
+              </button>
+            </div>
+
+            <!-- 발송 진행바 -->
+            <div class="send-progress" id="sendProgress">
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+              </div>
+              <div class="progress-text" id="progressText">0 / 0 건 발송 중...</div>
+            </div>
+
+            <!-- 발송 결과 로그 -->
+            <div class="send-log" id="sendLog"></div>
+          </div>
+        </div>
+
+        <!-- [RIGHT] 미리보기 -->
+        <div class="panel preview-panel">
+          <div class="panel-header">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              미리보기
+            </h3>
+            <span class="badge badge-green">실시간</span>
+          </div>
+          <div class="panel-body">
+            <div class="preview-toolbar">
+              <button class="preview-tab active" data-tab="customer" onclick="switchPreviewTab(this)">고객용</button>
+              <button class="preview-tab" data-tab="staff" onclick="switchPreviewTab(this)">담당자용</button>
+            </div>
+
+            <div class="email-preview-frame">
+              <div class="preview-meta" id="previewMeta">
+                <div class="preview-meta-row">
+                  <span class="meta-label">From</span>
+                  <span class="meta-value" id="metaFrom">K-자금컴퍼니 &lt;noreply@mail.policy-fund.online&gt;</span>
+                </div>
+                <div class="preview-meta-row">
+                  <span class="meta-label">To</span>
+                  <span class="meta-value" id="metaTo">수신자를 선택하세요</span>
+                </div>
+                <div class="preview-meta-row">
+                  <span class="meta-label">제목</span>
+                  <span class="meta-value" id="metaSubject">[K-자금컴퍼니] 무료진단 신청이 접수되었습니다</span>
+                </div>
+              </div>
+
+              <div class="preview-body" id="previewBody">
+                <div class="email-template" id="emailPreviewContent">
+                  <!-- Preview will be rendered here by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /email-layout -->
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ========================================
+    // State
+    // ========================================
+    const API_URL = WORKER_URL; // admin-auth.js에서 정의
+    let allLeads = [];
+    let filteredLeadsList = [];
+    let selectedIds = new Set();
+    let currentFilter = 'all';
+    let currentTemplate = 'receipt';
+    let currentPreviewTab = 'customer';
+    let isSending = false;
+    let lastFocusedInput = null;
+
+    // 마지막 포커스된 input 추적
+    document.addEventListener('focusin', (e) => {
+      if (e.target.matches('#emailSubject, #extraMessage, #customBody')) {
+        lastFocusedInput = e.target;
+      }
+    });
+
+    // ========================================
+    // Sidebar Toggle
+    // ========================================
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+      document.querySelector('.sidebar-overlay').classList.toggle('open');
+    }
+
+    // ========================================
+    // Toast
+    // ========================================
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ========================================
+    // Load Leads
+    // ========================================
+    async function loadLeads() {
+      try {
+        const response = await fetch(`${API_URL}/leads`);
+        const data = await response.json();
+
+        if (data.success && data.leads) {
+          allLeads = data.leads.map(lead => ({
+            id: lead.id,
+            date: lead.Date || (lead.createdTime ? lead.createdTime.split('T')[0] : '-'),
+            company: lead.Company || '-',
+            name: lead.Name || '-',
+            phone: lead.Phone || '-',
+            email: lead.Email || '',
+            region: lead.Region || '-',
+            amount: lead.Amount || '-',
+            fundType: lead.FundType || '-',
+            callTime: lead.CallTime || '-',
+            status: mapStatus(lead.Status),
+            statusLabel: lead.Status || '신규',
+            message: lead.Message || ''
+          }));
+        } else {
+          allLeads = [];
+        }
+      } catch (error) {
+        console.error('API 호출 실패:', error);
+        allLeads = [];
+        showToast('수신자 목록 로드 실패', 'error');
+      }
+
+      filterRecipients();
+      document.getElementById('totalBadge').textContent = allLeads.length + '건';
+    }
+
+    function mapStatus(status) {
+      const map = { '신규': 'pending', '상담중': 'progress', '완료': 'complete', '취소': 'cancel' };
+      return map[status] || 'pending';
+    }
+
+    // ========================================
+    // Filter & Search Recipients
+    // ========================================
+    function setFilter(btn) {
+      document.querySelectorAll('.recipient-actions .btn-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      filterRecipients();
+    }
+
+    function filterRecipients() {
+      const keyword = (document.getElementById('recipientSearch').value || '').toLowerCase();
+
+      filteredLeadsList = allLeads.filter(lead => {
+        // Status filter
+        if (currentFilter === 'email-only' && !lead.email) return false;
+        if (currentFilter === 'pending' && lead.status !== 'pending') return false;
+        if (currentFilter === 'progress' && lead.status !== 'progress') return false;
+
+        // Search filter
+        if (keyword) {
+          return lead.name.toLowerCase().includes(keyword) ||
+                 lead.company.toLowerCase().includes(keyword) ||
+                 (lead.email && lead.email.toLowerCase().includes(keyword));
+        }
+        return true;
+      });
+
+      renderRecipients();
+    }
+
+    function renderRecipients() {
+      const container = document.getElementById('recipientList');
+      document.getElementById('totalRecipients').textContent = filteredLeadsList.length;
+
+      if (filteredLeadsList.length === 0) {
+        container.innerHTML = '<div class="recipient-loading">해당하는 수신자가 없습니다.</div>';
+        return;
+      }
+
+      container.innerHTML = filteredLeadsList.map(lead => {
+        const hasEmail = lead.email && lead.email !== '-' && lead.email.includes('@');
+        const isSelected = selectedIds.has(lead.id);
+        const statusClass = {
+          'pending': 'status-new',
+          'progress': 'status-progress',
+          'complete': 'status-complete',
+          'cancel': 'status-cancel'
+        }[lead.status] || 'status-new';
+        const statusText = {
+          'pending': '신규',
+          'progress': '상담중',
+          'complete': '완료',
+          'cancel': '취소'
+        }[lead.status] || '신규';
+
+        return `
+          <label class="recipient-item ${isSelected ? 'selected' : ''}" data-id="${lead.id}">
+            <input type="checkbox" ${isSelected ? 'checked' : ''} ${!hasEmail ? 'disabled' : ''} onchange="toggleRecipient('${lead.id}', this.checked)">
+            <div class="recipient-info">
+              <div class="recipient-name">${escapeHtml(lead.name)}</div>
+              <div class="recipient-company">${escapeHtml(lead.company)}</div>
+              <div class="recipient-email">${hasEmail ? escapeHtml(lead.email) : '<span class="no-email-tag">이메일 없음</span>'}</div>
+            </div>
+            <span class="recipient-status ${statusClass}">${statusText}</span>
+          </label>
+        `;
+      }).join('');
+
+      updateSelectedCount();
+    }
+
+    function toggleRecipient(id, checked) {
+      if (checked) {
+        selectedIds.add(id);
+      } else {
+        selectedIds.delete(id);
+      }
+      // Update UI
+      const item = document.querySelector(`.recipient-item[data-id="${id}"]`);
+      if (item) item.classList.toggle('selected', checked);
+      updateSelectedCount();
+      updatePreview();
+    }
+
+    function toggleSelectAll() {
+      const emailLeads = filteredLeadsList.filter(l => l.email && l.email !== '-' && l.email.includes('@'));
+      const allSelected = emailLeads.every(l => selectedIds.has(l.id));
+
+      if (allSelected) {
+        emailLeads.forEach(l => selectedIds.delete(l.id));
+      } else {
+        emailLeads.forEach(l => selectedIds.add(l.id));
+      }
+
+      renderRecipients();
+      updatePreview();
+    }
+
+    function updateSelectedCount() {
+      const count = selectedIds.size;
+      document.getElementById('selectedCount').textContent = count;
+
+      const btn = document.getElementById('btnSend');
+      const btnText = document.getElementById('btnSendText');
+      if (count > 0) {
+        btn.disabled = false;
+        btnText.textContent = `${count}명에게 발송`;
+      } else {
+        btn.disabled = true;
+        btnText.textContent = '수신자를 선택하세요';
+      }
+
+      // Toggle select all button text
+      const emailLeads = filteredLeadsList.filter(l => l.email && l.email !== '-' && l.email.includes('@'));
+      const allSelected = emailLeads.length > 0 && emailLeads.every(l => selectedIds.has(l.id));
+      document.getElementById('btnSelectAll').textContent = allSelected ? '전체 해제' : '전체 선택';
+    }
+
+    // ========================================
+    // Template Selection
+    // ========================================
+    function selectTemplate(card) {
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      currentTemplate = card.dataset.template;
+
+      // Update subject based on template
+      const subjectMap = {
+        'receipt': '[K-자금컴퍼니] 무료진단 신청이 접수되었습니다',
+        'progress': '[K-자금컴퍼니] 정책자금 심사 진행안내',
+        'approval': '[K-자금컴퍼니] 정책자금 승인 안내',
+        'custom': '[K-자금컴퍼니] '
+      };
+      document.getElementById('emailSubject').value = subjectMap[currentTemplate] || '';
+
+      // Show/hide custom body editor
+      const customEditor = document.getElementById('customBodyEditor');
+      if (currentTemplate === 'custom') {
+        customEditor.classList.add('visible');
+      } else {
+        customEditor.classList.remove('visible');
+      }
+
+      updatePreview();
+    }
+
+    // ========================================
+    // Variable Insertion
+    // ========================================
+    function insertVariable(varTag) {
+      const target = lastFocusedInput || document.getElementById('emailSubject');
+      const pos = target.selectionStart || target.value.length;
+      const val = target.value;
+      target.value = val.slice(0, pos) + varTag + val.slice(pos);
+      target.focus();
+      target.setSelectionRange(pos + varTag.length, pos + varTag.length);
+      updatePreview();
+    }
+
+    // ========================================
+    // Email Templates
+    // ========================================
+    function getTemplateSubject(lead) {
+      let subject = document.getElementById('emailSubject').value;
+      return substituteVars(subject, lead);
+    }
+
+    function substituteVars(text, lead) {
+      const staffName = document.getElementById('staffName').value || '김은희 기업심사관';
+      return text
+        .replace(/\{\{고객명\}\}/g, lead.name || '-')
+        .replace(/\{\{기업명\}\}/g, lead.company || '-')
+        .replace(/\{\{자금종류\}\}/g, lead.fundType || '-')
+        .replace(/\{\{희망금액\}\}/g, lead.amount || '-')
+        .replace(/\{\{접수일\}\}/g, lead.date || '-')
+        .replace(/\{\{담당자\}\}/g, staffName)
+        .replace(/\{\{연락처\}\}/g, lead.phone || '-')
+        .replace(/\{\{이메일\}\}/g, lead.email || '-');
+    }
+
+    function highlightVars(text) {
+      return text.replace(/\{\{([^}]+)\}\}/g, '<span class="var-highlight">{{$1}}</span>');
+    }
+
+    function buildCustomerEmailHTML(lead) {
+      const staffName = document.getElementById('staffName').value || '김은희 기업심사관';
+      const deadline = document.getElementById('deadline').value;
+      const extraMsg = document.getElementById('extraMessage').value;
+      const subject = getTemplateSubject(lead);
+
+      if (currentTemplate === 'custom') {
+        return buildCustomEmailHTML(lead);
+      }
+
+      const greetings = {
+        'receipt': `안녕하세요, <strong>${e(lead.name)}</strong>님!<br><br>정책자금 심사신청이 정상적으로 접수되었습니다.<br><br>영업일기준 24시간 이내 담당 전문 컨설턴트가 연락드리겠습니다.`,
+        'progress': `안녕하세요, <strong>${e(lead.name)}</strong>님!<br><br>신청하신 정책자금 심사가 현재 <strong>진행 중</strong>입니다.<br><br>담당 심사관이 검토 후 결과를 안내드리겠습니다.`,
+        'approval': `안녕하세요, <strong>${e(lead.name)}</strong>님!<br><br>축하합니다! 신청하신 정책자금이 <strong>승인</strong>되었습니다.<br><br>아래 내용을 확인하시고, 빠른 시일 내에 담당자에게 연락주시기 바랍니다.`
+      };
+
+      const ctaMessages = {
+        'receipt': `영업일기준 <strong>24시간 이내</strong>에<br>K-자금컴퍼니에서 연락드리겠습니다.`,
+        'progress': `심사 진행 중 추가 서류가 필요한 경우<br><strong>담당자가 별도 안내</strong>드리겠습니다.`,
+        'approval': `<strong>축하합니다!</strong><br>자세한 내용은 담당자에게 문의해주세요.`
+      };
+
+      const headerTitles = {
+        'receipt': '무료진단 신청이 접수되었습니다',
+        'progress': '정책자금 심사 진행안내',
+        'approval': '정책자금 승인을 축하합니다!'
+      };
+
+      let extraSection = '';
+      if (extraMsg) {
+        extraSection = `
+          <div style="background:#F5F5F5; padding:16px; border-radius:8px; margin-bottom:16px; border-left:3px solid #1C2D4F;">
+            <p style="font-size:13px; color:#404040; line-height:1.7; margin:0;">${e(extraMsg).replace(/\n/g, '<br>')}</p>
+          </div>`;
+      }
+
+      return buildEmailFrame(
+        headerTitles[currentTemplate],
+        greetings[currentTemplate],
+        lead,
+        deadline,
+        ctaMessages[currentTemplate],
+        extraSection,
+        staffName
+      );
+    }
+
+    function buildCustomEmailHTML(lead) {
+      const customBody = document.getElementById('customBody').value;
+      const staffName = document.getElementById('staffName').value || '김은희 기업심사관';
+      const subject = document.getElementById('emailSubject').value;
+      const bodyHtml = substituteVars(customBody, lead).replace(/\n/g, '<br>');
+
+      return `
+      <div style="font-family:'Pretendard',-apple-system,sans-serif; max-width:600px; margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#0F1B2D 0%,#141414 100%); color:white; padding:35px 30px; border-radius:16px 16px 0 0; text-align:center;">
+          <img src="https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/logo_light.png" alt="K-자금컴퍼니" style="width:120px; height:auto; margin-bottom:15px;">
+          <h2 style="margin:0; font-size:22px; font-weight:700;">${e(substituteVars(subject, lead))}</h2>
+          <p style="margin:12px 0 0; opacity:0.95; font-size:14px;">K-자금컴퍼니 정책자금 전문상담</p>
+        </div>
+        <div style="background:#fef3c7; padding:12px 20px; text-align:center; border-left:1px solid #e5e7eb; border-right:1px solid #e5e7eb;">
+          <p style="margin:0; color:#92400e; font-size:12px; line-height:1.6;">📧 본 메일은 발신전용으로 회신이 불가합니다.<br>문의는 <strong>1844-0239</strong> 또는 <strong>ni5720@daum.net</strong>으로 연락주세요.</p>
+        </div>
+        <div style="background:white; padding:35px 30px; border:1px solid #e5e7eb; border-top:none;">
+          <div style="font-size:14px; color:#404040; line-height:1.8;">${bodyHtml}</div>
+          <div style="text-align:center; padding:20px 0; margin-top:20px; border-top:1px dashed #e5e7eb;">
+            <p style="margin:0 0 15px; color:#6b7280; font-size:13px;">문의사항은 아래 연락처로 연락주세요</p>
+            <p style="margin:0 0 6px; color:#374151; font-size:13px;">📞 <strong>1844-0239</strong></p>
+            <p style="margin:0; color:#374151; font-size:13px;">✉️ <strong>ni5720@daum.net</strong></p>
+          </div>
+        </div>
+        <div style="text-align:center; padding:20px 12px; background:#0F1B2D; border-radius:0 0 16px 16px; color:white;">
+          <p style="margin:0 0 6px; font-weight:700; font-size:14px;">K-자금컴퍼니</p>
+          <p style="margin:0 0 4px; opacity:0.85; font-size:12px;">중소기업 성장의 든든한 파트너</p>
+          <p style="margin:10px 0 0; opacity:0.7; font-size:10px;">※ 본 메일은 발신전용으로 회신이 불가합니다.</p>
+          <p style="margin:4px 0 0; opacity:0.7; font-size:10px;">문의: 1844-0239 | ni5720@daum.net</p>
+        </div>
+      </div>`;
+    }
+
+    function buildEmailFrame(headerTitle, greeting, lead, deadline, ctaMessage, extraSection, staffName) {
+      return `
+      <div style="font-family:'Pretendard',-apple-system,sans-serif; max-width:600px; margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#0F1B2D 0%,#141414 100%); color:white; padding:35px 30px; border-radius:16px 16px 0 0; text-align:center;">
+          <img src="https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/logo_light.png" alt="K-자금컴퍼니" style="width:120px; height:auto; margin-bottom:15px;">
+          <h2 style="margin:0; font-size:22px; font-weight:700;">${e(headerTitle)}</h2>
+          <p style="margin:12px 0 0; opacity:0.95; font-size:14px;">K-자금컴퍼니 정책자금 전문상담</p>
+        </div>
+        <div style="background:#fef3c7; padding:12px 20px; text-align:center; border-left:1px solid #e5e7eb; border-right:1px solid #e5e7eb;">
+          <p style="margin:0; color:#92400e; font-size:12px; line-height:1.6;">📧 본 메일은 발신전용으로 회신이 불가합니다.<br>문의는 <strong>1844-0239</strong> 또는 <strong>ni5720@daum.net</strong>으로 연락주세요.</p>
+        </div>
+        <div style="background:white; padding:35px 30px; border:1px solid #e5e7eb; border-top:none;">
+          <div style="background:#F5F5F5; padding:24px; border-radius:12px; margin-bottom:25px; border-left:4px solid #1C2D4F;">
+            <p style="margin:0; color:#404040; line-height:1.8; font-size:14px;">${greeting}</p>
+          </div>
+          <div style="background:linear-gradient(135deg,#0F1B2D 0%,#141414 100%); padding:24px; border-radius:12px; margin-bottom:25px; box-shadow:0 4px 15px rgba(0,0,0,0.25);">
+            <h3 style="color:white; margin:0 0 18px; font-size:16px; font-weight:600;">📋 접수 내용</h3>
+            <table style="width:100%; color:white; font-size:12px; border-collapse:separate; border-spacing:0 6px;">
+              <tr><td style="padding:8px 12px; background:rgba(255,255,255,0.15); border-radius:8px 0 0 8px; width:35%; white-space:nowrap;">🏢 기업명</td><td style="padding:8px 12px; background:rgba(255,255,255,0.1); border-radius:0 8px 8px 0; font-weight:600;">${e(lead.company)}</td></tr>
+              <tr><td style="padding:8px 12px; background:rgba(255,255,255,0.15); border-radius:8px 0 0 8px; white-space:nowrap;">📞 연락처</td><td style="padding:8px 12px; background:rgba(255,255,255,0.1); border-radius:0 8px 8px 0; font-weight:600;">${e(lead.phone)}</td></tr>
+              <tr><td style="padding:8px 12px; background:rgba(255,255,255,0.15); border-radius:8px 0 0 8px; white-space:nowrap;">💰 희망자금</td><td style="padding:8px 12px; background:rgba(255,255,255,0.1); border-radius:0 8px 8px 0; font-weight:600;">${e(lead.amount)}</td></tr>
+              <tr><td style="padding:8px 12px; background:rgba(255,255,255,0.15); border-radius:8px 0 0 8px; white-space:nowrap;">⏰ 연락시간</td><td style="padding:8px 12px; background:rgba(255,255,255,0.1); border-radius:0 8px 8px 0; font-weight:600;">${e(lead.callTime)}</td></tr>
+              ${deadline ? `<tr><td style="padding:8px 12px; background:rgba(255,255,255,0.15); border-radius:8px 0 0 8px; white-space:nowrap;">📅 마감일</td><td style="padding:8px 12px; background:rgba(255,255,255,0.1); border-radius:0 8px 8px 0; font-weight:600;">${e(deadline)}</td></tr>` : ''}
+            </table>
+          </div>
+          ${extraSection}
+          <div style="background:#F5F5F5; padding:20px 24px; border-radius:12px; margin-bottom:25px; border-left:4px solid #1C2D4F; text-align:center;">
+            <p style="margin:0; color:#1C2D4F; font-weight:600; font-size:15px; line-height:1.7;">${ctaMessage}</p>
+          </div>
+          <div style="text-align:center; padding:20px 0; border-top:1px dashed #e5e7eb;">
+            <p style="margin:0 0 15px; color:#6b7280; font-size:13px;">문의사항은 아래 연락처로 연락주세요</p>
+            <p style="margin:0 0 6px; color:#374151; font-size:13px;">📞 <strong>1844-0239</strong></p>
+            <p style="margin:0; color:#374151; font-size:13px;">✉️ <strong>ni5720@daum.net</strong></p>
+          </div>
+        </div>
+        <div style="text-align:center; padding:20px 12px; background:#0F1B2D; border-radius:0 0 16px 16px; color:white;">
+          <p style="margin:0 0 6px; font-weight:700; font-size:14px;">K-자금컴퍼니</p>
+          <p style="margin:0 0 4px; opacity:0.85; font-size:12px;">중소기업 성장의 든든한 파트너</p>
+          <p style="margin:10px 0 0; opacity:0.7; font-size:10px;">※ 본 메일은 발신전용으로 회신이 불가합니다.</p>
+          <p style="margin:4px 0 0; opacity:0.7; font-size:10px;">문의: 1844-0239 | ni5720@daum.net</p>
+        </div>
+      </div>`;
+    }
+
+    function buildStaffEmailHTML(lead) {
+      const staffName = document.getElementById('staffName').value || '김은희 기업심사관';
+      const templateLabels = {
+        'receipt': '접수확인',
+        'progress': '진행안내',
+        'approval': '승인축하',
+        'custom': '직접작성'
+      };
+
+      return `
+      <div style="font-family:'Pretendard',-apple-system,sans-serif; max-width:600px; margin:0 auto;">
+        <div style="background:linear-gradient(135deg,#0F1B2D 0%,#141414 100%); color:white; padding:30px; border-radius:16px 16px 0 0;">
+          <h2 style="margin:0; font-size:24px; font-weight:700;">📧 이메일 발송 알림</h2>
+          <p style="margin:10px 0 0; opacity:0.95; font-size:14px;">관리자 대시보드에서 발송됨 (${templateLabels[currentTemplate]})</p>
+        </div>
+        <div style="background:white; padding:30px; border:1px solid #e5e7eb; border-top:none;">
+          <div style="background:#F5F5F5; padding:20px; border-radius:12px; margin-bottom:25px; border-left:4px solid #1C2D4F;">
+            <h3 style="color:#1C2D4F; margin:0 0 15px; font-size:18px;">📋 발송 대상</h3>
+            <table style="width:100%;">
+              <tr><td style="padding:8px 0; color:#525252; width:40%; white-space:nowrap;">👤 이름</td><td style="color:#374151;">${e(lead.name)}</td></tr>
+              <tr><td style="padding:8px 0; color:#525252; white-space:nowrap;">🏢 기업명</td><td style="color:#1C2D4F; font-weight:600;">${e(lead.company)}</td></tr>
+              <tr><td style="padding:8px 0; color:#525252; white-space:nowrap;">📞 연락처</td><td style="color:#374151;">${e(lead.phone)}</td></tr>
+              <tr><td style="padding:8px 0; color:#525252; white-space:nowrap;">✉️ 이메일</td><td style="color:#374151;">${e(lead.email)}</td></tr>
+              <tr><td style="padding:8px 0; color:#525252; white-space:nowrap;">💰 희망자금</td><td style="color:#374151;">${e(lead.amount)}</td></tr>
+            </table>
+          </div>
+          <div style="background:#EFF6FF; padding:14px 20px; border-radius:8px; border-left:4px solid #3B82F6;">
+            <p style="margin:0; font-size:13px; color:#1E40AF;">발송자: ${e(staffName)} | 템플릿: ${templateLabels[currentTemplate]}</p>
+          </div>
+        </div>
+        <div style="text-align:center; padding:20px; background:#0F1B2D; border-radius:0 0 16px 16px; color:white; font-size:12px;">
+          <p style="margin:0; font-weight:600;">K-자금컴퍼니 관리자 시스템</p>
+          <p style="margin:5px 0 0; opacity:0.9; font-size:11px;">※ 관리자 대시보드에서 자동 발송된 알림입니다.</p>
+        </div>
+      </div>`;
+    }
+
+    // ========================================
+    // Preview
+    // ========================================
+    function updatePreview() {
+      const senderName = document.getElementById('senderName').value || 'K-자금컴퍼니';
+      const subject = document.getElementById('emailSubject').value;
+
+      // Get first selected lead for preview, or use sample
+      let previewLead = null;
+      if (selectedIds.size > 0) {
+        const firstId = [...selectedIds][0];
+        previewLead = allLeads.find(l => l.id === firstId);
+      }
+      if (!previewLead) {
+        previewLead = {
+          name: '홍길동', company: '예시기업', phone: '010-1234-5678',
+          email: 'example@email.com', amount: '1억~3억', callTime: '오전 10시~12시',
+          fundType: '정책자금', date: new Date().toISOString().split('T')[0]
+        };
+      }
+
+      // Update meta
+      document.getElementById('metaFrom').textContent = `${senderName} <noreply@mail.policy-fund.online>`;
+      document.getElementById('metaTo').textContent = previewLead.email || '수신자를 선택하세요';
+      document.getElementById('metaSubject').textContent = substituteVars(subject, previewLead);
+
+      // Build preview HTML
+      const previewContainer = document.getElementById('emailPreviewContent');
+      if (currentPreviewTab === 'customer') {
+        previewContainer.innerHTML = buildPreviewHTML(previewLead);
+      } else {
+        previewContainer.innerHTML = buildStaffPreviewHTML(previewLead);
+      }
+    }
+
+    function buildPreviewHTML(lead) {
+      const staffName = document.getElementById('staffName').value || '김은희 기업심사관';
+      const deadline = document.getElementById('deadline').value;
+      const extraMsg = document.getElementById('extraMessage').value;
+
+      if (currentTemplate === 'custom') {
+        const customBody = document.getElementById('customBody').value || '본문을 입력하세요...';
+        const bodyHtml = highlightVars(substituteVars(customBody, lead).replace(/\n/g, '<br>'));
+        return `
+          <div class="et-header">
+            <div style="font-size:11px; opacity:0.7;">K-FUND COMPANY</div>
+            <h2>${highlightVars(substituteVars(document.getElementById('emailSubject').value, lead))}</h2>
+            <p>K-자금컴퍼니 정책자금 전문상담</p>
+          </div>
+          <div class="et-notice">📧 본 메일은 발신전용으로 회신이 불가합니다.<br>문의는 <strong>1844-0239</strong> 또는 <strong>ni5720@daum.net</strong></div>
+          <div class="et-body">
+            <div style="font-size:13px; color:#404040; line-height:1.8;">${bodyHtml}</div>
+            <div class="et-contact">
+              <p style="margin-bottom:8px;">문의사항은 아래로 연락주세요</p>
+              <p>📞 <strong>1844-0239</strong></p>
+              <p>✉️ <strong>ni5720@daum.net</strong></p>
+            </div>
+          </div>
+          <div class="et-footer">
+            <p class="brand">K-자금컴퍼니</p>
+            <p style="opacity:0.85; margin-top:4px;">중소기업 성장의 든든한 파트너</p>
+          </div>`;
+      }
+
+      const headerTitles = {
+        'receipt': '무료진단 신청이 접수되었습니다',
+        'progress': '정책자금 심사 진행안내',
+        'approval': '정책자금 승인을 축하합니다!'
+      };
+
+      const greetings = {
+        'receipt': `안녕하세요, <strong><span class="var-highlight">${e(lead.name)}</span></strong>님! 👋<br><br>정책자금 심사신청이 정상적으로 접수되었습니다.<br><br>영업일기준 24시간 이내 담당 전문 컨설턴트가 연락드리겠습니다.`,
+        'progress': `안녕하세요, <strong><span class="var-highlight">${e(lead.name)}</span></strong>님!<br><br>신청하신 정책자금 심사가 현재 <strong>진행 중</strong>입니다.<br><br>담당 심사관이 검토 후 결과를 안내드리겠습니다.`,
+        'approval': `안녕하세요, <strong><span class="var-highlight">${e(lead.name)}</span></strong>님! 🎉<br><br>축하합니다! 신청하신 정책자금이 <strong>승인</strong>되었습니다.<br><br>아래 내용을 확인하시고, 빠른 시일 내에 담당자에게 연락주시기 바랍니다.`
+      };
+
+      const ctaMessages = {
+        'receipt': `영업일기준 <strong>24시간 이내</strong>에<br>K-자금컴퍼니에서 연락드리겠습니다.`,
+        'progress': `심사 진행 중 추가 서류가 필요한 경우<br><strong>담당자가 별도 안내</strong>드리겠습니다.`,
+        'approval': `<strong>축하합니다!</strong><br>자세한 내용은 담당자에게 문의해주세요.`
+      };
+
+      let deadlineRow = '';
+      if (deadline) {
+        deadlineRow = `<tr><td>📅 마감일</td><td><span class="var-highlight">${deadline}</span></td></tr>`;
+      }
+
+      let extraSection = '';
+      if (extraMsg) {
+        extraSection = `
+          <div style="background:#F5F5F5; padding:16px; border-radius:8px; margin-bottom:16px; border-left:3px solid #1C2D4F;">
+            <p style="font-size:13px; color:#404040; line-height:1.7; margin:0;">${e(extraMsg).replace(/\n/g, '<br>')}</p>
+          </div>`;
+      }
+
+      return `
+        <div class="et-header">
+          <div style="font-size:11px; opacity:0.7;">K-FUND COMPANY</div>
+          <h2>${headerTitles[currentTemplate]}</h2>
+          <p>K-자금컴퍼니 정책자금 전문상담</p>
+        </div>
+        <div class="et-notice">📧 본 메일은 발신전용으로 회신이 불가합니다.<br>문의는 <strong>1844-0239</strong> 또는 <strong>ni5720@daum.net</strong></div>
+        <div class="et-body">
+          <div class="et-greeting">
+            <p>${greetings[currentTemplate]}</p>
+          </div>
+          <div class="et-info-box">
+            <h4>📋 접수 내용</h4>
+            <table>
+              <tr><td>🏢 기업명</td><td><span class="var-highlight">${e(lead.company)}</span></td></tr>
+              <tr><td>📞 연락처</td><td><span class="var-highlight">${e(lead.phone)}</span></td></tr>
+              <tr><td>💰 희망자금</td><td><span class="var-highlight">${e(lead.amount)}</span></td></tr>
+              <tr><td>⏰ 연락시간</td><td><span class="var-highlight">${e(lead.callTime)}</span></td></tr>
+              ${deadlineRow}
+            </table>
+          </div>
+          ${extraSection}
+          <div class="et-cta"><p>${ctaMessages[currentTemplate]}</p></div>
+          <div class="et-contact">
+            <p style="margin-bottom:8px;">문의사항은 아래로 연락주세요</p>
+            <p>📞 <strong>1844-0239</strong></p>
+            <p>✉️ <strong>ni5720@daum.net</strong></p>
+          </div>
+        </div>
+        <div class="et-footer">
+          <p class="brand">K-자금컴퍼니</p>
+          <p style="opacity:0.85; margin-top:4px;">중소기업 성장의 든든한 파트너</p>
+          <p style="opacity:0.6; margin-top:8px; font-size:10px;">※ 본 메일은 발신전용으로 회신이 불가합니다.</p>
+          <p style="opacity:0.6; margin-top:2px; font-size:10px;">문의: 1844-0239 | ni5720@daum.net</p>
+        </div>`;
+    }
+
+    function buildStaffPreviewHTML(lead) {
+      const staffName = document.getElementById('staffName').value || '김은희 기업심사관';
+      const templateLabels = {
+        'receipt': '접수확인',
+        'progress': '진행안내',
+        'approval': '승인축하',
+        'custom': '직접작성'
+      };
+
+      return `
+        <div class="et-header">
+          <div style="font-size:11px; opacity:0.7;">K-FUND COMPANY</div>
+          <h2>📧 이메일 발송 알림</h2>
+          <p>관리자 대시보드에서 발송됨 (${templateLabels[currentTemplate]})</p>
+        </div>
+        <div class="et-body">
+          <div class="et-greeting">
+            <p><strong>발송 대상 정보</strong></p>
+            <p>👤 이름: <span class="var-highlight">${e(lead.name)}</span></p>
+            <p>🏢 기업명: <span class="var-highlight">${e(lead.company)}</span></p>
+            <p>📞 연락처: <span class="var-highlight">${e(lead.phone)}</span></p>
+            <p>✉️ 이메일: <span class="var-highlight">${e(lead.email)}</span></p>
+            <p>💰 희망자금: <span class="var-highlight">${e(lead.amount)}</span></p>
+          </div>
+          <div style="background:#EFF6FF; padding:14px; border-radius:8px; border-left:3px solid #3B82F6; margin-bottom:16px;">
+            <p style="font-size:13px; color:#1E40AF; margin:0;">발송자: ${e(staffName)} | 템플릿: ${templateLabels[currentTemplate]}</p>
+          </div>
+        </div>
+        <div class="et-footer">
+          <p class="brand">K-자금컴퍼니 관리자 시스템</p>
+          <p style="opacity:0.85; margin-top:4px;">관리자 대시보드에서 자동 발송된 알림</p>
+        </div>`;
+    }
+
+    function switchPreviewTab(tab) {
+      document.querySelectorAll('.preview-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentPreviewTab = tab.dataset.tab;
+      updatePreview();
+    }
+
+    // ========================================
+    // Send Emails
+    // ========================================
+    async function sendEmails() {
+      if (isSending) return;
+      if (selectedIds.size === 0) return;
+
+      const selectedLeads = allLeads.filter(l => selectedIds.has(l.id) && l.email && l.email.includes('@'));
+      if (selectedLeads.length === 0) {
+        showToast('이메일 주소가 유효한 수신자가 없습니다.', 'error');
+        return;
+      }
+
+      if (!confirm(`${selectedLeads.length}명에게 이메일을 발송하시겠습니까?`)) return;
+
+      isSending = true;
+      const btn = document.getElementById('btnSend');
+      btn.disabled = true;
+      document.getElementById('btnSendText').textContent = '발송 중...';
+
+      const progressEl = document.getElementById('sendProgress');
+      const progressFill = document.getElementById('progressFill');
+      const progressText = document.getElementById('progressText');
+      const logEl = document.getElementById('sendLog');
+      progressEl.classList.add('visible');
+      logEl.innerHTML = '';
+
+      let successCount = 0;
+      let failCount = 0;
+      const senderName = document.getElementById('senderName').value || 'K-자금컴퍼니';
+
+      for (let i = 0; i < selectedLeads.length; i++) {
+        const lead = selectedLeads[i];
+        const pct = Math.round(((i) / selectedLeads.length) * 100);
+        progressFill.style.width = pct + '%';
+        progressText.textContent = `${i + 1} / ${selectedLeads.length} 건 발송 중...`;
+
+        try {
+          const customerHtml = buildCustomerEmailHTML(lead);
+          const staffHtml = buildStaffEmailHTML(lead);
+          const subject = substituteVars(document.getElementById('emailSubject').value, lead);
+
+          const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              emailFrom: `${senderName} <noreply@mail.policy-fund.online>`,
+              customerEmail: lead.email,
+              customerSubject: subject,
+              customerHtml: customerHtml,
+              staffEmails: ['ni5720@daum.net'],
+              staffSubject: `[이메일발송] ${lead.company} - ${lead.name}님에게 발송완료`,
+              staffHtml: staffHtml
+            })
+          });
+
+          const result = await response.json();
+          if (response.ok && result.success) {
+            successCount++;
+            logEl.innerHTML += `<div class="send-log-item success">✓ ${e(lead.name)} (${e(lead.email)}) - 발송 성공</div>`;
+          } else {
+            failCount++;
+            logEl.innerHTML += `<div class="send-log-item fail">✗ ${e(lead.name)} (${e(lead.email)}) - ${result.error || '발송 실패'}</div>`;
+          }
+        } catch (err) {
+          failCount++;
+          logEl.innerHTML += `<div class="send-log-item fail">✗ ${e(lead.name)} (${e(lead.email)}) - ${err.message}</div>`;
+        }
+
+        // Scroll log to bottom
+        logEl.scrollTop = logEl.scrollHeight;
+
+        // Small delay between sends
+        if (i < selectedLeads.length - 1) {
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+
+      progressFill.style.width = '100%';
+      progressText.textContent = `완료: 성공 ${successCount}건 / 실패 ${failCount}건`;
+
+      isSending = false;
+      btn.disabled = false;
+      document.getElementById('btnSendText').textContent = `${selectedIds.size}명에게 발송`;
+
+      if (failCount === 0) {
+        showToast(`${successCount}건 이메일 발송 완료!`, 'success');
+      } else {
+        showToast(`성공 ${successCount}건, 실패 ${failCount}건`, failCount > successCount ? 'error' : 'info');
+      }
+    }
+
+    // ========================================
+    // Utility
+    // ========================================
+    function e(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    const escapeHtml = e;
+
+    // ========================================
+    // Init
+    // ========================================
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set default deadline to 7 days from now
+      const d = new Date();
+      d.setDate(d.getDate() + 7);
+      document.getElementById('deadline').value = d.toISOString().split('T')[0];
+
+      loadLeads();
+      updatePreview();
+    });
+  </script>
+</body>
+</html>

@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NBTKZYCKCV"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '');
+      gtag('config', 'G-NBTKZYCKCV');
     </script>
     <meta charset="UTF-8">
     <meta name="naver-site-verification" content="" />
@@ -20,9 +20,13 @@
     <meta property="og:type" content="article">
     <meta property="og:title" content="2026년 창업지원사업 통합공고 3.46조원 완전 가이드 - K-자금컴퍼니">
     <meta property="og:description" content="2026년 창업지원사업 통합공고 3조 4,645억원 총정리">
-    <meta property="og:image" content="https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/posts/startup-support-2026-v2.png">
-    <meta property="og:url" content="https://k-fund.co.kr/marketing-news/2026-startup-support">
+    <meta property="og:image" content="https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/board/2026-startup-support.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:url" content="https://k-fund.kr/marketing-news/2026-startup-support">
     <meta property="og:site_name" content="K-자금컴퍼니">
+    <meta property="og:locale" content="ko_KR">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -718,7 +722,7 @@
 
         .youth-programs {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
         }
 
@@ -747,7 +751,7 @@
 
         .apply-steps {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin-top: 24px;
         }
@@ -816,7 +820,7 @@
         }
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
         }
         .summary-item {
@@ -985,6 +989,7 @@
             .container {
                 padding: 24px 16px 60px;
             }
+            .summary-grid, .youth-programs, .apply-steps { grid-template-columns: 1fr; }
 
             .article-title {
                 font-size: 26px;
@@ -1116,7 +1121,7 @@
 
         <!-- 히어로 이미지 -->
         <div class="hero-image">
-            <img src="https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/posts/startup-support-2026-v3.png" alt="2026년 창업지원사업 - 스타트업 이미지" loading="lazy">
+            <img src="https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/board/2026-startup-support.webp" alt="2026년 창업지원사업 - 스타트업 이미지" loading="lazy">
         </div>
 
         <!-- 핵심 요약 -->
@@ -1757,7 +1762,7 @@
                 const relatedGrid = document.getElementById('related-grid');
                 relatedGrid.innerHTML = relatedPosts.map(post => {
                     const postUrl = post.slug ? '/marketing-news/' + post.slug : '../post.html?id=' + post.id;
-                    const thumbnail = post.thumbnail || 'https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/posts/default-thumbnail.png';
+                    const thumbnail = post.thumbnail || 'https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev/board/2026-policy-fund-overview.jpg';
                     return `
                         <a href="${postUrl}" class="related-card">
                             <img src="${thumbnail}" alt="${post.title}" class="related-card-image" loading="lazy">

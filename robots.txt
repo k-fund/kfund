@@ -1,5 +1,5 @@
-# robots.txt for 더나은 기업연구소 (ibnkorea.kr)
-# Last updated: 2026-01
+# robots.txt for K-자금컴퍼니 (k-fund.kr)
+# Last updated: 2026-02-13
 
 # 모든 크롤러 허용
 User-agent: *
@@ -94,13 +94,7 @@ Disallow: /api/
 # ========================================
 # 사이트맵 위치
 # ========================================
-Sitemap: https://ibnkorea.kr/sitemap.xml
-
-# ========================================
-# AI 전용 정보 파일
-# ========================================
-# AI 크롤러는 llms.txt 파일을 참조하세요
-# https://ibnkorea.kr/llms.txt
+Sitemap: https://k-fund.kr/sitemap.xml
 
 # Host
-Host: https://ibnkorea.kr
+Host: https://k-fund.kr

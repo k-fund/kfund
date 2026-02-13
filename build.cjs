@@ -10,7 +10,7 @@ if (!fs.existsSync(DIST_DIR)) {
 }
 
 // 루트의 HTML 파일들을 그대로 dist로 복사
-const htmlFiles = ['index.html', 'about.html', 'process.html', 'fund.html', 'service.html', 'marketing.html', 'post.html', 'policy.html', 'privacy.html'];
+const htmlFiles = ['index.html', 'about.html', 'process.html', 'fund.html', 'service.html', 'marketing.html', 'board.html', 'post.html', 'policy.html', 'privacy.html'];
 
 htmlFiles.forEach(file => {
     const srcPath = path.join(ROOT_DIR, file);
