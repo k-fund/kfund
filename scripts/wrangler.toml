@@ -1,0 +1,15 @@
+name = "kfund"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+account_id = "c5eb7f24ae078dc9caede7e6d4fc3f41"
+
+# Worker URL: https://kfund.t63755720.workers.dev
+
+[vars]
+ADMIN_PASSWORD = "kfund2026!"
+
+# R2 버킷 바인딩 (이미지 업로드용)
+# Public URL: https://pub-d4f7fa5a4cb648d48f34274fcba1d283.r2.dev
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "kfund-r2"

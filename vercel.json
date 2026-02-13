@@ -1,0 +1,29 @@
+{
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/marketing-news/:slug",
+      "destination": "/posts/:slug"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "admin.k-fund.kr"
+        }
+      ],
+      "destination": "/admin/",
+      "permanent": false
+    },
+    {
+      "source": "/posts/:slug",
+      "destination": "/marketing-news/:slug",
+      "permanent": true
+    }
+  ]
+}

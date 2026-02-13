@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="naver-site-verification" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 - K-자금컴퍼니</title>
+    <meta name="description" content="K-자금컴퍼니 공지사항 및 정책자금 소식. 정부정책자금, 중소기업 지원사업 최신 정보를 확인하세요.">
+    <meta name="keywords" content="정책자금, 정부정책자금, 정부지원자금, 중소기업 지원사업, 정책자금상담, 경영컨설팅, K-자금컴퍼니">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="게시글 - K-자금컴퍼니">
+    <meta property="og:description" content="정부정책자금, 중소기업 지원사업 최신 정보">
+    <meta property="og:image" content="https://k-fund.co.kr/images/og/og-home.png">
+    <meta property="og:url" content="https://k-fund.co.kr/post.html">
+    <meta property="og:site_name" content="K-자금컴퍼니">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <style>
+        /* 게시글 상세페이지 - polarad.co.kr 스타일 (다크 테마) */
+        .post-section {
+            padding: 140px 20px 80px;
+            min-height: 100vh;
+            background: #0F1B2D;
+        }
+
+        .post-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 2컬럼 레이아웃 */
+        .post-layout {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 48px;
+            align-items: start;
+        }
+
+        .post-main {
+            max-width: 800px;
+        }
+
+        /* 사이드바 */
+        .post-sidebar {
+            position: sticky;
+            top: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .sidebar-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(74, 137, 181, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 공유하기 버튼 */
+        .share-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .share-btn {
+            flex: 1;
+            min-width: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(42, 64, 102, 0.25);
+            border: 1px solid rgba(168, 212, 232, 0.15);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .share-btn:hover {
+            background: rgba(74, 137, 181, 0.15);
+            border-color: rgba(168, 212, 232, 0.35);
+            color: #fff;
+        }
+
+        .share-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .share-btn.facebook:hover { background: rgba(24, 119, 242, 0.15); border-color: rgba(24, 119, 242, 0.4); }
+        .share-btn.twitter:hover { background: rgba(29, 161, 242, 0.15); border-color: rgba(29, 161, 242, 0.4); }
+        .share-btn.copy:hover { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); }
+
+        /* 글 정보 */
+        .post-info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .post-info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .post-info-item svg {
+            width: 16px;
+            height: 16px;
+            stroke: rgba(255, 255, 255, 0.5);
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        /* 사이드바 버튼 */
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(42, 64, 102, 0.25);
+            border: 1px solid rgba(168, 212, 232, 0.2);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(74, 137, 181, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #fff;
+        }
+
+        .sidebar-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        /* 관련글 섹션 */
+        .related-section {
+            margin-top: 64px;
+            padding-top: 48px;
+            border-top: 1px solid rgba(74, 137, 181, 0.15);
+            display: none;
+        }
+
+        .related-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .related-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(74, 137, 181, 0.15);
+            border-radius: 14px;
+            overflow: hidden;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .related-card:hover {
+            background: rgba(42, 64, 102, 0.25);
+            border-color: rgba(168, 212, 232, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .related-card-image {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            background: rgba(42, 64, 102, 0.25);
+        }
+
+        .related-card-content {
+            padding: 16px;
+        }
+
+        .related-card-category {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .related-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* 로딩/에러 상태 */
+        .post-loading, .post-error {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .post-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(168, 212, 232, 0.2);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .post-error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .post-error-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #EF4444;
+            margin-bottom: 8px;
+        }
+
+        .post-error-desc {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 게시글 래퍼 */
+        .post-wrapper {
+            display: none;
+        }
+
+        /* 헤더 영역 */
+        .post-header {
+            margin-bottom: 32px;
+        }
+
+        .post-category {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(74, 137, 181, 0.15);
+            border: 1px solid rgba(168, 212, 232, 0.2);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 16px;
+        }
+
+        .post-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.35;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .post-excerpt {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .post-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(74, 137, 181, 0.15);
+        }
+
+        .post-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .post-meta-item svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        .post-meta-divider {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(168, 212, 232, 0.35);
+        }
+
+        /* 히어로 이미지 */
+        .post-hero-image {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 40px;
+            border: 1px solid rgba(74, 137, 181, 0.15);
+            display: none;
+        }
+
+        .post-hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 본문 콘텐츠 */
+        .post-content {
+            margin-bottom: 48px;
+        }
+
+        .post-body {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.85;
+        }
+
+        .post-body p {
+            margin: 0 0 20px;
+        }
+
+        .post-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .post-body a {
+            color: #60A5FA;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .post-body a:hover {
+            color: #93C5FD;
+        }
+
+        .post-body strong {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+
+        .post-body h2, .post-body h3 {
+            color: #FFFFFF;
+            font-weight: 700;
+            margin: 32px 0 16px;
+        }
+
+        .post-body h2 {
+            font-size: 24px;
+        }
+
+        .post-body h3 {
+            font-size: 20px;
+        }
+
+        .post-body ul, .post-body ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        .post-body li {
+            margin-bottom: 8px;
+        }
+
+        .post-body blockquote {
+            border-left: 4px solid rgba(168, 212, 232, 0.35);
+            padding-left: 20px;
+            margin: 24px 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        /* 하단 네비게이션 */
+        .post-nav {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 48px;
+            display: none;
+        }
+
+        .post-nav-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 24px;
+            background: rgba(42, 64, 102, 0.25);
+            border: 1px solid rgba(168, 212, 232, 0.2);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .post-nav-btn:hover {
+            background: rgba(74, 137, 181, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #FFFFFF;
+        }
+
+        .post-nav-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        /* CTA 섹션 */
+        .post-cta {
+            margin-top: 48px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(168, 212, 232, 0.15);
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .post-cta-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 12px;
+        }
+
+        .post-cta-desc {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 24px;
+        }
+
+        .post-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: #ffffff;
+            border: none;
+            border-radius: 12px;
+            color: #1C2D4F;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(168, 212, 232, 0.15);
+        }
+
+        .post-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(168, 212, 232, 0.3);
+        }
+
+        .post-cta-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        /* 브레드크럼 */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .breadcrumb a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: #ffffff;
+        }
+
+        .breadcrumb-separator {
+            color: rgba(168, 212, 232, 0.35);
+        }
+
+        .breadcrumb-current {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Top 버튼 - K-자금컴퍼니 녹색 컬러 */
+        .top-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #2D2D2D, #0F1B2D);
+            border: 1px solid rgba(168, 212, 232, 0.35);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(168, 212, 232, 0.2);
+        }
+
+        .top-button.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .top-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4), 0 0 50px rgba(168, 212, 232, 0.2);
+        }
+
+        .top-button svg {
+            width: 24px;
+            height: 24px;
+            stroke: #FFFFFF;
+            fill: none;
+        }
+
+        /* 반응형 - 태블릿 */
+        @media (max-width: 1024px) {
+            .post-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .post-sidebar {
+                display: none;
+            }
+
+            .post-main {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            .related-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 반응형 - 모바일 */
+        @media (max-width: 768px) {
+            .post-section {
+                padding: 120px 16px 60px;
+            }
+
+            .post-title {
+                font-size: 24px;
+            }
+
+            .post-excerpt {
+                font-size: 15px;
+            }
+
+            .post-meta {
+                gap: 12px;
+            }
+
+            .post-hero-image {
+                border-radius: 12px;
+                margin-bottom: 32px;
+            }
+
+            .post-body {
+                font-size: 16px;
+            }
+
+            .post-body h2 {
+                font-size: 20px;
+            }
+
+            .post-body h3 {
+                font-size: 18px;
+            }
+
+            .post-nav {
+                flex-direction: column;
+            }
+
+            .post-cta {
+                padding: 32px 20px;
+            }
+
+            .post-cta-title {
+                font-size: 18px;
+            }
+
+            .related-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .related-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Component (index.html과 동일) -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <img src="images/logo-light.png" alt="K-자금컴퍼니" class="logo-img">
+                <span class="logo-brand-name">K-자금컴퍼니</span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">홈</a>
+                <a href="about.html" class="nav-link">회사소개</a>
+                <a href="process.html" class="nav-link">진행절차</a>
+                <a href="fund.html" class="nav-link">정책자금</a>
+                <a href="service.html" class="nav-link">전문가서비스</a>
+                <a href="marketing.html" class="nav-link">온라인마케팅</a>
+                <a href="index.html#contact-form" class="btn-cta">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                    </svg>
+                    무료상담
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <nav class="mobile-nav" id="mobileNav">
+        <div class="mobile-nav-grid">
+            <a href="index.html" class="mobile-nav-link">홈</a>
+            <a href="about.html" class="mobile-nav-link">회사소개</a>
+            <a href="process.html" class="mobile-nav-link">진행절차</a>
+            <a href="fund.html" class="mobile-nav-link">정책자금</a>
+            <a href="service.html" class="mobile-nav-link">전문가서비스</a>
+            <a href="marketing.html" class="mobile-nav-link">온라인마케팅</a>
+        </div>
+    </nav>
+
+    <!-- 게시글 본문 -->
+    <section class="post-section">
+        <div class="post-container">
+            <!-- 브레드크럼 -->
+            <nav class="breadcrumb" id="breadcrumb" aria-label="경로" style="display: none;">
+                <a href="index.html">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="marketing.html">정책자금 소식</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-current" id="breadcrumb-title">게시글</span>
+            </nav>
+
+            <!-- 로딩 상태 -->
+            <div class="post-loading" id="post-loading">
+                <div class="post-loading-spinner"></div>
+                <p>게시글을 불러오는 중...</p>
+            </div>
+
+            <!-- 에러 상태 -->
+            <div class="post-error" id="post-error" style="display: none;">
+                <div class="post-error-icon">😕</div>
+                <div class="post-error-title">해당 게시글을 확인할 수 없습니다</div>
+                <p class="post-error-desc">요청하신 콘텐츠가 삭제되었거나 경로가 변경되었습니다.</p>
+            </div>
+
+            <!-- 2컬럼 레이아웃 -->
+            <div class="post-layout" id="post-layout" style="display: none;">
+                <!-- 메인 콘텐츠 -->
+                <div class="post-main">
+                    <!-- 게시글 래퍼 -->
+                    <article class="post-wrapper" id="post-wrapper">
+                <!-- 헤더 영역 -->
+                <header class="post-header">
+                    <span class="post-category" id="post-category">카테고리</span>
+                    <h1 class="post-title" id="post-title">게시글 제목</h1>
+                    <p class="post-excerpt" id="post-excerpt"></p>
+                    <div class="post-meta">
+                        <div class="post-meta-item">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="7" r="4"></circle>
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            </svg>
+                            <span>K-자금컴퍼니 정책자금팀</span>
+                        </div>
+                        <span class="post-meta-divider"></span>
+                        <div class="post-meta-item" id="post-date">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span>-</span>
+                        </div>
+                        <span class="post-meta-divider"></span>
+                        <div class="post-meta-item" id="post-views">
+                            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <span>조회 0</span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- 히어로 이미지 -->
+                <div class="post-hero-image" id="post-hero-image">
+                    <img id="post-thumbnail" src="" alt="">
+                </div>
+
+                <!-- 본문 콘텐츠 -->
+                <div class="post-content">
+                    <div class="post-body" id="post-body"></div>
+                </div>
+            </article>
+
+            <!-- 하단 네비게이션 -->
+            <div class="post-nav" id="post-nav">
+                <a href="marketing.html" class="post-nav-btn">
+                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    목록으로
+                </a>
+                <a href="index.html#contact-form" class="post-nav-btn">
+                    무료상담 신청
+                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+            </div>
+
+            <!-- CTA 섹션 -->
+            <div class="post-cta" id="post-cta">
+                <h3 class="post-cta-title">지금 바로 무료 기업진단을 받아보세요</h3>
+                <p class="post-cta-desc">95% 자금확보 성공률, 기업당 평균 2억원+ 지원. 전담 심사관이 1:1 상담합니다.</p>
+                <a href="index.html#contact-form" class="post-cta-btn">
+                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                    </svg>
+                    무료 상담 신청하기
+                </a>
+            </div>
+
+                    <!-- 관련글 섹션 -->
+                    <section class="related-section" id="related-section">
+                        <h3 class="related-title">정책자금 관련 소식</h3>
+                        <div class="related-grid" id="related-grid"></div>
+                    </section>
+
+                </div><!-- /.post-main -->
+
+                <!-- 사이드바 -->
+                <aside class="post-sidebar" id="post-sidebar">
+                    <!-- 공유하기 -->
+                    <div class="sidebar-section">
+                        <h4 class="sidebar-title">공유하기</h4>
+                        <div class="share-buttons">
+                            <button class="share-btn facebook" onclick="shareFacebook()">
+                                <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                페이스북
+                            </button>
+                            <button class="share-btn twitter" onclick="shareTwitter()">
+                                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                X
+                            </button>
+                            <button class="share-btn copy" onclick="copyLink()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                링크 복사
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 글 정보 -->
+                    <div class="sidebar-section">
+                        <h4 class="sidebar-title">글 정보</h4>
+                        <div class="post-info-list">
+                            <div class="post-info-item">
+                                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                </svg>
+                                <span id="sidebar-author">K-자금컴퍼니 정책자금팀</span>
+                            </div>
+                            <div class="post-info-item">
+                                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span id="sidebar-date">-</span>
+                            </div>
+                            <div class="post-info-item">
+                                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <span id="sidebar-views">조회 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 목록으로 버튼 -->
+                    <a href="marketing.html" class="sidebar-btn">
+                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        목록으로 돌아가기
+                    </a>
+                </aside>
+
+            </div><!-- /.post-layout -->
+        </div>
+    </section>
+
+    <!-- Footer Component (index.html과 동일) -->
+    <style>
+        .kfund-footer {
+            --footer-navy: #1C2D4F;
+            --footer-navy-light: #141414;
+            --footer-primary: #FFFFFF;
+            --footer-accent: #E5E5E5;
+            --footer-text: rgba(255, 255, 255, 0.88);
+            --footer-sub-text: rgba(255, 255, 255, 0.6);
+            --footer-border: rgba(168, 212, 232, 0.15);
+        }
+
+        .kfund-footer {
+            background: #0F1B2D; border-top: 1px solid rgba(74, 137, 181, 0.15);
+            color: #ffffff;
+            padding: 60px 0 0;
+            width: 100%;
+        }
+
+        .kfund-footer .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .kfund-footer .footer-top {
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--footer-border);
+        }
+
+        .kfund-footer .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .kfund-footer .footer-logo-image {
+            height: 120px;
+            width: auto;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 15px rgba(168, 212, 232, 0.35)) drop-shadow(0 0 30px rgba(168, 212, 232, 0.2));
+            animation: footerLogoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes footerLogoGlow {
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(168, 212, 232, 0.35)) drop-shadow(0 0 30px rgba(168, 212, 232, 0.2)); }
+            50% { filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 50px rgba(168, 212, 232, 0.35)); }
+        }
+
+        .kfund-footer .footer-logo:hover .footer-logo-image {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 60px rgba(255, 255, 255, 0.4));
+        }
+
+        .kfund-footer .footer-desc {
+            margin: 0;
+            color: var(--footer-text);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .kfund-footer .footer-middle {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 80px;
+            padding: 40px 0;
+            border-bottom: 1px solid var(--footer-border);
+        }
+
+        .kfund-footer .footer-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .kfund-footer .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--footer-text);
+            margin-bottom: 14px;
+            font-size: 15px;
+        }
+
+        .kfund-footer .contact-item svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: var(--footer-primary);
+        }
+
+        .kfund-footer .footer-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .kfund-footer .footer-list li {
+            margin-bottom: 12px;
+        }
+
+        .kfund-footer .footer-list a {
+            color: var(--footer-sub-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .kfund-footer .footer-list a:hover {
+            color: #ffffff;
+            padding-left: 6px;
+        }
+
+        .kfund-footer .mobile-br {
+            display: none;
+        }
+
+        .kfund-footer .partnership-link {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--footer-border);
+        }
+
+        .kfund-footer .partnership-link a {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+            background: rgba(42, 64, 102, 0.25);
+            border: 1px solid rgba(168, 212, 232, 0.35);
+            border-radius: 10px;
+            padding: 12px 20px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(74, 137, 181, 0.15), inset 0 0 15px rgba(42, 64, 102, 0.25);
+            animation: jjkNeonPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes jjkNeonPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(168, 212, 232, 0.2), 0 0 30px rgba(42, 64, 102, 0.25); }
+            50% { box-shadow: 0 0 25px rgba(168, 212, 232, 0.35), 0 0 50px rgba(74, 137, 181, 0.15); }
+        }
+
+        .kfund-footer .partnership-link a:hover {
+            background: rgba(74, 137, 181, 0.15);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 30px rgba(168, 212, 232, 0.35), 0 0 60px rgba(168, 212, 232, 0.2);
+            transform: translateY(-2px);
+            animation: none;
+        }
+
+        .kfund-footer .partnership-icon {
+            height: 24px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .kfund-footer .footer-bottom {
+            padding: 28px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .kfund-footer .copyright {
+            color: var(--footer-sub-text);
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .kfund-footer .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .kfund-footer .footer-links a {
+            color: var(--footer-sub-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 13px;
+        }
+
+        .kfund-footer .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        .kfund-footer .footer-links .divider {
+            color: var(--footer-border);
+        }
+
+        @media (max-width: 968px) {
+            .kfund-footer .footer-middle {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .kfund-footer .footer-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kfund-footer {
+                padding: 44px 0 0;
+            }
+
+            .kfund-footer .mobile-br {
+                display: block;
+            }
+
+            .kfund-footer .partnership-link a {
+                font-size: 12px;
+                padding: 10px 16px;
+            }
+
+            .kfund-footer .footer-container {
+                padding: 0 18px;
+            }
+
+            .kfund-footer .footer-desc {
+                font-size: 13px;
+            }
+
+            .kfund-footer .footer-middle {
+                padding: 32px 0;
+                gap: 32px;
+            }
+
+            .kfund-footer .contact-item {
+                font-size: 13px;
+                gap: 10px;
+            }
+
+            .kfund-footer .contact-item svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .kfund-footer .footer-title {
+                font-size: 16px;
+            }
+
+            .kfund-footer .footer-list {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .kfund-footer .footer-list li {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .kfund-footer .footer-logo-image {
+                height: 34px;
+            }
+
+            .kfund-footer .footer-links a,
+            .kfund-footer .copyright {
+                font-size: 12px;
+            }
+        }
+    </style>
+
+    <footer class="kfund-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-info">
+                    <a href="index.html" class="footer-logo">
+                        <img src="images/logo-light.png" alt="K-자금컴퍼니" class="footer-logo-image">
+                        
+                    </a>
+                    <p class="footer-desc">
+                        중소기업 성장의 든든한 파트너<br>
+                        정책자금 승인의 모든 단계에 K-자금컴퍼니가 함께합니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-middle">
+                <div class="footer-contact">
+                    <h4 class="footer-title">Contact</h4>
+
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M16 12h-3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3v7z"></path>
+                        </svg>
+                        <span>대표자: 김은희</span>
+                    </div>
+
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        <span>사업자등록번호: 533-08-03518</span>
+                    </div>
+
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span>대표번호: 1844-0239</span>
+                    </div>
+
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M12 12l8-5H4l8 5z"></path>
+                        </svg>
+                        <span>이메일: ni5720@daum.net</span>
+                    </div>
+
+                    <div class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <span>주소: 경기도 의왕시 원골로 10, 1동 505호</span>
+                    </div>
+
+                    <div class="partnership-link">
+                        <a href="https://www.jjk-biz.com/" target="_blank" rel="noopener noreferrer">
+                            <img src="https://pub-1872e954c9da49929650d78642a05e08.r2.dev/images/jjk-logo.png" alt="JJK" class="partnership-icon">
+                            <span>JJK 업무협약 | K-자금컴퍼니</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-menu">
+                    <h4 class="footer-title">Menu</h4>
+                    <ul class="footer-list">
+                        <li><a href="index.html">K-자금컴퍼니</a></li>
+                        <li><a href="about.html">회사소개</a></li>
+                        <li><a href="process.html">진행절차</a></li>
+                        <li><a href="fund.html">정책자금</a></li>
+                        <li><a href="service.html">전문가서비스</a></li>
+                        <li><a href="marketing.html">온라인마케팅</a></li>
+                        <li><a href="index.html#contact-form">무료상담</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="copyright">Copyright 2026 K-자금컴퍼니. All Rights Reserved.</p>
+                <div class="footer-links">
+                    <a href="policy.html">이용약관</a>
+                    <span class="divider">|</span>
+                    <a href="privacy.html">개인정보처리방침</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Top 버튼 -->
+    <button class="top-button" id="topButton" aria-label="맨 위로">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <script>
+    const WORKER_URL = 'https://kfund.t63755720.workers.dev';
+    let currentPostId = null;
+    let currentPostTitle = '';
+
+    (function() {
+        const loadingEl = document.getElementById('post-loading');
+        const errorEl = document.getElementById('post-error');
+        const layoutEl = document.getElementById('post-layout');
+        const navEl = document.getElementById('post-nav');
+        const ctaEl = document.getElementById('post-cta');
+
+        async function loadPost() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            currentPostId = postId;
+
+            if (!postId) {
+                showError();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${WORKER_URL}/posts/${postId}`);
+                const data = await response.json();
+
+                if (data.post) {
+                    displayPost(data.post);
+                    loadRelatedPosts(postId);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Failed to load post:', error);
+                showError();
+            }
+        }
+
+        function displayPost(post) {
+            // slug 필드가 있으면 marketing-news 페이지로 리다이렉트
+            // replace()를 사용하여 히스토리에 새 항목을 추가하지 않음 (뒤로가기 무한루프 방지)
+            if (post.slug) {
+                window.location.replace(`/marketing-news/${post.slug}`);
+                return;
+            }
+
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'none';
+            layoutEl.style.display = 'grid';
+            navEl.style.display = 'flex';
+            ctaEl.style.display = 'block';
+
+            currentPostTitle = post.title;
+
+            // 브레드크럼 표시
+            const breadcrumbEl = document.getElementById('breadcrumb');
+            const breadcrumbTitleEl = document.getElementById('breadcrumb-title');
+            if (breadcrumbEl && breadcrumbTitleEl) {
+                breadcrumbTitleEl.textContent = post.title;
+                breadcrumbEl.style.display = 'flex';
+            }
+
+            // 페이지 타이틀 업데이트
+            document.title = `${post.title} - K-자금컴퍼니`;
+
+            // 히어로 이미지 표시
+            const thumbnailEl = document.getElementById('post-thumbnail');
+            const heroImageEl = document.getElementById('post-hero-image');
+            if (post.thumbnail) {
+                thumbnailEl.src = post.thumbnail;
+                thumbnailEl.alt = post.title;
+                heroImageEl.style.display = 'block';
+            } else {
+                heroImageEl.style.display = 'none';
+            }
+
+            // 내용 채우기
+            document.getElementById('post-category').textContent = post.category || '소식';
+            document.getElementById('post-title').textContent = post.title;
+
+            // 요약 (excerpt) 표시 - description 또는 content 첫 부분 사용
+            const excerptEl = document.getElementById('post-excerpt');
+            if (post.description) {
+                excerptEl.textContent = post.description;
+                excerptEl.style.display = 'block';
+            } else if (post.content) {
+                // content에서 첫 150자 추출
+                const plainText = post.content.replace(/[#*>\[\]]/g, '').trim();
+                const excerpt = plainText.substring(0, 150) + (plainText.length > 150 ? '...' : '');
+                excerptEl.textContent = excerpt;
+                excerptEl.style.display = 'block';
+            } else {
+                excerptEl.style.display = 'none';
+            }
+
+            const formattedDate = formatDate(post.date);
+            const viewsText = `조회 ${(post.views || 0).toLocaleString()}`;
+
+            document.getElementById('post-date').querySelector('span').textContent = formattedDate;
+            document.getElementById('post-views').querySelector('span').textContent = viewsText;
+
+            // 사이드바 정보 업데이트
+            document.getElementById('sidebar-date').textContent = formattedDate;
+            document.getElementById('sidebar-views').textContent = viewsText;
+
+            // 내용 파싱
+            const contentHtml = parseContent(post.content);
+            document.getElementById('post-body').innerHTML = contentHtml;
+        }
+
+        async function loadRelatedPosts(currentId) {
+            try {
+                const response = await fetch(`${WORKER_URL}/posts?limit=4`);
+                const data = await response.json();
+
+                if (data.posts && data.posts.length > 0) {
+                    // 현재 글 제외
+                    const relatedPosts = data.posts.filter(p => p.id !== currentId).slice(0, 3);
+
+                    if (relatedPosts.length > 0) {
+                        const relatedSection = document.getElementById('related-section');
+                        const relatedGrid = document.getElementById('related-grid');
+
+                        relatedGrid.innerHTML = relatedPosts.map(post => {
+                            const postUrl = post.slug
+                                ? `/marketing-news/${post.slug}`
+                                : `post.html?id=${post.id}`;
+                            const thumbnail = post.thumbnail || 'https://pub-5adc3ecd20c347cfb03e96cae9ceb623.r2.dev/posts/default-thumbnail.png';
+
+                            return `
+                                <a href="${postUrl}" class="related-card">
+                                    <img src="${thumbnail}" alt="${post.title}" class="related-card-image" loading="lazy">
+                                    <div class="related-card-content">
+                                        <span class="related-card-category">${post.category || '소식'}</span>
+                                        <h4 class="related-card-title">${post.title}</h4>
+                                    </div>
+                                </a>
+                            `;
+                        }).join('');
+
+                        relatedSection.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load related posts:', error);
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}.${month}.${day}`;
+        }
+
+        // 내용 파싱 함수
+        // 사용자가 엔터 한 번 → 단순 줄바꿈 (간격 없이)
+        // 사용자가 엔터 두 번 → 빈 줄로 단락 구분 (간격 있음)
+        function parseContent(content) {
+            if (!content) return '';
+
+            let html = content
+                // 헤딩
+                .replace(/^### (.+)$/gm, '<h3 style="margin: 20px 0 10px; color: #60A5FA;">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2 style="margin: 24px 0 12px; color: #93C5FD;">$1</h2>')
+                // 굵은 글씨
+                .replace(/\*\*(.+?)\*\*/g, '<strong style="color: #FFFFFF;">$1</strong>')
+                // 링크
+                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" style="color: #60A5FA;">$1</a>')
+                // 인용
+                .replace(/^> (.+)$/gm, '<blockquote style="border-left: 3px solid #3B82F6; padding-left: 15px; margin: 16px 0; color: rgba(255,255,255,0.7);">$1</blockquote>')
+                // 리스트 (연속된 항목은 간격 없이)
+                .replace(/^[-•] (.+)$/gm, '<div style="margin-left: 20px; display: flex;"><span style="margin-right: 8px;">•</span><span>$1</span></div>')
+                .replace(/^(\d+)\. (.+)$/gm, '<div style="margin-left: 20px; display: flex;"><span style="margin-right: 8px;">$1.</span><span>$2</span></div>')
+                // 섹션 헤더 (■, ●, ▶ 등)
+                .replace(/^([■●▶▷◆◇★☆]) (.+)$/gm, '<div style="font-weight: 600; color: #60A5FA; margin-top: 16px;">$1 $2</div>');
+
+            // 줄바꿈 처리: 엔터 두 번(빈 줄) → 단락 구분, 엔터 한 번 → 단순 줄바꿈
+            html = html
+                .replace(/\n\n+/g, '</p><p style="margin-top: 16px;">')  // 빈 줄 = 새 단락
+                .replace(/\n/g, '<br>');  // 단순 엔터 = 줄바꿈만
+
+            return '<p>' + html + '</p>';
+        }
+
+        function showError() {
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'block';
+            layoutEl.style.display = 'none';
+        }
+
+        // 초기 로드
+        loadPost();
+    })();
+
+    // 공유하기 기능
+    function shareFacebook() {
+        const url = window.location.href;
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+    }
+
+    function shareTwitter() {
+        const url = window.location.href;
+        const title = currentPostTitle || document.title;
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, '_blank', 'width=600,height=400');
+    }
+
+    function copyLink() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.querySelector('.share-btn.copy');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 복사됨!';
+            btn.style.background = 'rgba(16, 185, 129, 0.2)';
+            btn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.style.borderColor = '';
+            }, 2000);
+        }).catch(() => {
+            alert('링크가 복사되었습니다: ' + url);
+        });
+    }
+
+    // Top 버튼 기능
+    (function() {
+        const topButton = document.getElementById('topButton');
+        if (!topButton) return;
+        let ticking = false;
+        function updateTopButton() { if (window.scrollY > 400) { topButton.classList.add('visible'); } else { topButton.classList.remove('visible'); } ticking = false; }
+        window.addEventListener('scroll', function() { if (!ticking) { requestAnimationFrame(updateTopButton); ticking = true; } }, { passive: true });
+        topButton.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    })();
+
+    // 모바일 헤더 스크롤 숨김
+    (function() {
+        let lastScrollY = 0;
+        let ticking = false;
+        const header = document.querySelector('.header');
+        const mobileNav = document.getElementById('mobileNav');
+
+        function updateHeader() {
+            const currentScrollY = window.scrollY;
+            if (window.innerWidth <= 968) {
+                if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                    header.classList.add('header-hidden');
+                    if (mobileNav) mobileNav.classList.add('nav-hidden');
+                } else if (currentScrollY < lastScrollY) {
+                    header.classList.remove('header-hidden');
+                    if (mobileNav) mobileNav.classList.remove('nav-hidden');
+                }
+            }
+            lastScrollY = currentScrollY;
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(updateHeader);
+                ticking = true;
+            }
+        }, { passive: true });
+    })();
+    </script>
+</body>
+</html>
