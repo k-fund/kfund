@@ -2353,7 +2353,7 @@ function scrollToContactForm(event) {
     // K-자금컴퍼니 폼 - Cloudflare Workers 통합 연동
     const WORKER_URL = 'https://kfund.t63755720.workers.dev';
 
-    async function handleibnSubmit(event) {
+    async function handleKfundSubmit(event) {
         event.preventDefault();
 
         const form = event.target;
@@ -2565,7 +2565,7 @@ function scrollToContactForm(event) {
     }
 
     // 폼 제출 이벤트 연결
-    document.getElementById('kfundConsultForm').addEventListener('submit', handleibnSubmit);
+    document.getElementById('kfundConsultForm').addEventListener('submit', handleKfundSubmit);
 
     // 개인정보 동의 토글
     function toggleKfundPrivacy() {

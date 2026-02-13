@@ -2131,12 +2131,12 @@
 
     <script>
     (function() {
-        const API_BASE = ''; // API 비활성화 - K-자금 Worker와 간섭 방지
+        const API_BASE = 'https://kfund.t63755720.workers.dev';
         const grid = document.getElementById('employeesGrid');
 
         async function loadEmployees() {
             try {
-                const response = await fetch(`${API_BASE}/employees`);
+                const response = await fetch(`${API_BASE}/employees/all`);
                 const data = await response.json();
                 const employees = data.employees || [];
 

@@ -944,8 +944,7 @@
 
 <script>
 (function() {
-// API 비활성화 - K-자금 Worker와 간섭 방지
-const API_BASE = '';
+const API_BASE = 'https://kfund.t63755720.workers.dev';
     const STORAGE_KEY = 'kmoney_popup_hide_until';
     let currentSlide = 0;
     let popups = [];
@@ -963,7 +962,7 @@ const API_BASE = '';
         if (!shouldShowPopup()) return;
 
         try {
-            const response = await fetch(`${API_BASE}/popups`);
+            const response = await fetch(`${API_BASE}/popups/all`);
             const data = await response.json();
             popups = data.popups || [];
 
