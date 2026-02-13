@@ -696,6 +696,246 @@ async function handleBoardAPI(request, env, path) {
 }
 
 // ================================================
+// 팝업 API
+// ================================================
+
+async function handlePopupsAPI(request, env, path) {
+  const method = request.method;
+  const TABLE = 'popups';
+
+  // GET /popups/all
+  if (method === 'GET' && path === '/popups/all') {
+    try {
+      const res = await fetch(
+        `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}?sort[0][field]=order&sort[0][direction]=asc`,
+        { headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` } }
+      );
+      const data = await res.json();
+      const popups = (data.records || []).map(r => ({
+        id: r.id,
+        title: r.fields.title || '',
+        altText: r.fields.altText || '',
+        imageUrl: r.fields.imageUrl || '',
+        linkUrl: r.fields.linkUrl || '',
+        linkTarget: r.fields.linkTarget || '_self',
+        order: r.fields.order || 1,
+        isActive: r.fields.isActive || false,
+        startDate: r.fields.startDate || null,
+        endDate: r.fields.endDate || null
+      }));
+      return new Response(JSON.stringify({ popups }), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ popups: [], error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  // POST /popups
+  if (method === 'POST' && path === '/popups') {
+    try {
+      const data = await request.json();
+      const fields = {
+        title: data.title, altText: data.altText, imageUrl: data.imageUrl,
+        linkUrl: data.linkUrl || '', linkTarget: data.linkTarget || '_self',
+        order: data.order || 1, isActive: data.isActive || false,
+        startDate: data.startDate || '', endDate: data.endDate || ''
+      };
+      const res = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields })
+      });
+      const result = await res.json();
+      return new Response(JSON.stringify({ success: res.ok, id: result.id, error: result.error?.message }), {
+        status: res.ok ? 200 : 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  // PATCH /popups/:id
+  if (method === 'PATCH' && path.startsWith('/popups/')) {
+    const id = path.replace('/popups/', '');
+    try {
+      const data = await request.json();
+      const fields = {};
+      if (data.title !== undefined) fields.title = data.title;
+      if (data.altText !== undefined) fields.altText = data.altText;
+      if (data.imageUrl !== undefined) fields.imageUrl = data.imageUrl;
+      if (data.linkUrl !== undefined) fields.linkUrl = data.linkUrl;
+      if (data.linkTarget !== undefined) fields.linkTarget = data.linkTarget;
+      if (data.order !== undefined) fields.order = data.order;
+      if (data.isActive !== undefined) fields.isActive = data.isActive;
+      if (data.startDate !== undefined) fields.startDate = data.startDate;
+      if (data.endDate !== undefined) fields.endDate = data.endDate;
+
+      const res = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields })
+      });
+      const result = await res.json();
+      return new Response(JSON.stringify({ success: res.ok, error: result.error?.message }), {
+        status: res.ok ? 200 : 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  // DELETE /popups/:id
+  if (method === 'DELETE' && path.startsWith('/popups/')) {
+    const id = path.replace('/popups/', '');
+    try {
+      const res = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` }
+      });
+      return new Response(JSON.stringify({ success: res.ok }), {
+        status: res.ok ? 200 : 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  return new Response(JSON.stringify({ error: 'Not found' }), {
+    status: 404, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+  });
+}
+
+// ================================================
+// 임직원 API
+// ================================================
+
+async function handleEmployeesAPI(request, env, path) {
+  const method = request.method;
+  const TABLE = 'employees';
+
+  // GET /employees/all
+  if (method === 'GET' && path === '/employees/all') {
+    try {
+      const res = await fetch(
+        `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}?sort[0][field]=order&sort[0][direction]=asc`,
+        { headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` } }
+      );
+      const data = await res.json();
+      const employees = (data.records || []).map(r => ({
+        id: r.id,
+        이름: r.fields.name || '',
+        직책: r.fields.position || '',
+        소개: r.fields.intro || '',
+        프로필이미지URL: r.fields.profileImageUrl || '',
+        이미지위치: r.fields.imagePosition || 'center 20%',
+        순서: r.fields.order || 1,
+        공개여부: r.fields.isActive || false,
+        자금유형: r.fields.fundType || '',
+        업무영역: r.fields.workArea || '',
+        산업분야: r.fields.industry || ''
+      }));
+      return new Response(JSON.stringify({ employees }), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ employees: [], error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  // POST /employees
+  if (method === 'POST' && path === '/employees') {
+    try {
+      const data = await request.json();
+      const fields = {
+        name: data.이름, position: data.직책, intro: data.소개 || '',
+        profileImageUrl: data.프로필이미지URL || '', imagePosition: data.이미지위치 || 'center 20%',
+        order: data.순서 || 1, isActive: data.공개여부 || false,
+        fundType: data.자금유형 || '', workArea: data.업무영역 || '', industry: data.산업분야 || ''
+      };
+      const res = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields })
+      });
+      const result = await res.json();
+      return new Response(JSON.stringify({ success: res.ok, id: result.id, error: result.error?.message }), {
+        status: res.ok ? 200 : 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  // PATCH /employees/:id
+  if (method === 'PATCH' && path.startsWith('/employees/')) {
+    const id = path.replace('/employees/', '');
+    try {
+      const data = await request.json();
+      const fields = {};
+      if (data.이름 !== undefined) fields.name = data.이름;
+      if (data.직책 !== undefined) fields.position = data.직책;
+      if (data.소개 !== undefined) fields.intro = data.소개;
+      if (data.프로필이미지URL !== undefined) fields.profileImageUrl = data.프로필이미지URL;
+      if (data.이미지위치 !== undefined) fields.imagePosition = data.이미지위치;
+      if (data.순서 !== undefined) fields.order = data.순서;
+      if (data.공개여부 !== undefined) fields.isActive = data.공개여부;
+      if (data.자금유형 !== undefined) fields.fundType = data.자금유형;
+      if (data.업무영역 !== undefined) fields.workArea = data.업무영역;
+      if (data.산업분야 !== undefined) fields.industry = data.산업분야;
+
+      const res = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields })
+      });
+      const result = await res.json();
+      return new Response(JSON.stringify({ success: res.ok, error: result.error?.message }), {
+        status: res.ok ? 200 : 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  // DELETE /employees/:id
+  if (method === 'DELETE' && path.startsWith('/employees/')) {
+    const id = path.replace('/employees/', '');
+    try {
+      const res = await fetch(`https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE}/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${env.AIRTABLE_TOKEN}` }
+      });
+      return new Response(JSON.stringify({ success: res.ok }), {
+        status: res.ok ? 200 : 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ success: false, error: error.message }), {
+        status: 500, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  return new Response(JSON.stringify({ error: 'Not found' }), {
+    status: 404, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+  });
+}
+
+// ================================================
 // 메인 라우터
 // ================================================
 
@@ -817,6 +1057,16 @@ export default {
       // 게시판
       if (path === '/board' || path.startsWith('/board/') || path === '/posts' || path.startsWith('/posts/')) {
         return await handleBoardAPI(request, env, path);
+      }
+
+      // 팝업
+      if (path === '/popups' || path.startsWith('/popups/')) {
+        return await handlePopupsAPI(request, env, path);
+      }
+
+      // 임직원
+      if (path === '/employees' || path.startsWith('/employees/')) {
+        return await handleEmployeesAPI(request, env, path);
       }
 
       // 404
