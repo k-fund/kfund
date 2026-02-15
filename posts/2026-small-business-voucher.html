@@ -1074,9 +1074,14 @@
             .related-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
+        /* 반응형 - 968px */
+        @media (max-width: 968px) {
+            .container { padding-top: 210px; }
+        }
+
         /* 반응형 - 모바일 */
         @media (max-width: 768px) {
-            .container { padding: 24px 16px 60px; }
+            .container { padding: 210px 16px 60px; }
             .related-grid { grid-template-columns: 1fr; }
             .summary-grid { grid-template-columns: 1fr; }
 
@@ -1093,23 +1098,27 @@
             .budget-visual { padding: 20px; }
             .breadcrumb-current { max-width: 180px; }
             .content-section {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                overflow-x: hidden;
                 max-width: 100%;
             }
 
             .data-table {
-                min-width: 440px;
+                min-width: unset;
+                width: 100%;
                 display: table;
+                table-layout: auto;
+            }
+
+            .data-table th, .data-table td {
+                padding: 8px 5px;
+                font-size: 11px;
+                word-break: keep-all;
+                overflow-wrap: anywhere;
+                line-height: 1.4;
             }
 
             .content-section:has(.data-table)::after {
-                content: '← 좌우로 스크롤하세요 →';
-                display: block;
-                text-align: center;
-                font-size: 12px;
-                color: rgba(255,255,255,0.4);
-                margin-top: 8px;
+                display: none;
             }
             .content-text { word-break: keep-all; overflow-wrap: break-word; }
             .section-title { word-break: keep-all; overflow-wrap: break-word; }
@@ -1117,7 +1126,7 @@
 
         /* 반응형 - 소형 모바일 */
         @media (max-width: 400px) {
-            .container { padding: 24px 12px 48px; }
+            .container { padding: 210px 12px 48px; }
             .article-title { font-size: 22px; }
             .voucher-amount { font-size: 40px; }
             .voucher-card { padding: 24px; }
@@ -1127,7 +1136,7 @@
             .cta-section { padding: 24px 16px; }
             .breadcrumb-current { max-width: 140px; }
             .breadcrumb { font-size: 13px; }
-            .data-table th, .data-table td { padding: 10px 8px; font-size: 12px; }
+            .data-table th, .data-table td { padding: 6px 4px; font-size: 10px; }
             .key-info-value { font-size: 20px; }
             .step-number { width: 64px; height: 64px; font-size: 24px; }
             .comparison-card { padding: 20px; }

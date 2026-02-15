@@ -1066,9 +1066,14 @@
             .related-posts-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
+        /* 반응형 - 968px */
+        @media (max-width: 968px) {
+            .container { padding-top: 210px; }
+        }
+
         /* 반응형 - 모바일 */
         @media (max-width: 768px) {
-            .container { padding: 24px 16px 60px; }
+            .container { padding: 210px 16px 60px; }
             .related-posts-grid { grid-template-columns: 1fr; }
             .summary-grid, .related-grid { grid-template-columns: 1fr; }
 
@@ -1078,26 +1083,24 @@
             .target-grid { grid-template-columns: 1fr; }
             .benefits-grid { grid-template-columns: 1fr; }
             .comparison-section {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                overflow-x: hidden;
                 max-width: 100%;
             }
-
             .comparison-table {
-                font-size: 13px;
-                min-width: 440px;
+                font-size: 11px;
+                min-width: unset;
+                width: 100%;
                 display: table;
+                table-layout: auto;
             }
-
-            .comparison-table th, .comparison-table td { padding: 12px 8px; }
-
+            .comparison-table th, .comparison-table td {
+                padding: 8px 5px;
+                word-break: keep-all;
+                overflow-wrap: anywhere;
+                line-height: 1.4;
+            }
             .comparison-section::after {
-                content: '← 좌우로 스크롤하세요 →';
-                display: block;
-                text-align: center;
-                font-size: 12px;
-                color: rgba(255,255,255,0.4);
-                margin-top: 8px;
+                display: none;
             }
             .hero-card { padding: 32px; }
             .chart-section { padding: 20px; }
@@ -1109,7 +1112,7 @@
 
         /* 반응형 - 소형 모바일 */
         @media (max-width: 400px) {
-            .container { padding: 24px 12px 48px; }
+            .container { padding: 210px 12px 48px; }
             .article-title { font-size: 22px; }
             .hero-amount { font-size: 40px; }
             .hero-card { padding: 24px; }
@@ -1118,7 +1121,7 @@
             .cta-section { padding: 24px 16px; }
             .breadcrumb-current { max-width: 140px; }
             .breadcrumb { font-size: 13px; }
-            .comparison-table th, .comparison-table td { padding: 10px 6px; font-size: 12px; }
+            .comparison-table th, .comparison-table td { padding: 6px 4px; font-size: 10px; }
             .target-card { padding: 20px; }
             .benefit-item { padding: 20px; }
             .benefit-icon { width: 56px; height: 56px; font-size: 28px; }

@@ -420,10 +420,17 @@
             }
         }
 
+        /* 모바일: 헤더(72px) + 모바일네비(~117px) = ~190px 고정영역 */
+        @media (max-width: 968px) {
+            .board-hero {
+                padding-top: 210px;
+            }
+        }
+
         /* 반응형 - 모바일 */
         @media (max-width: 768px) {
             .board-hero {
-                padding: 130px 16px 40px;
+                padding: 210px 16px 40px;
             }
 
             .board-hero h1 {
@@ -483,7 +490,7 @@
         /* 360px 이하 초소형 모바일 */
         @media (max-width: 400px) {
             .board-hero {
-                padding: 120px 12px 32px;
+                padding: 210px 12px 32px;
             }
 
             .board-hero h1 {

@@ -984,10 +984,15 @@
             .related-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
+        /* 반응형 - 968px */
+        @media (max-width: 968px) {
+            .container { padding-top: 210px; }
+        }
+
         /* 반응형 - 모바일 */
         @media (max-width: 768px) {
             .container {
-                padding: 24px 16px 60px;
+                padding: 210px 16px 60px;
             }
             .summary-grid, .youth-programs, .apply-steps { grid-template-columns: 1fr; }
 
@@ -1025,23 +1030,28 @@
             }
 
             .programs-section {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                overflow-x: hidden;
                 max-width: 100%;
             }
-
             .program-table {
-                min-width: 600px;
+                min-width: unset;
+                width: 100%;
                 display: table;
+                table-layout: auto;
             }
-
+            .program-table th, .program-table td {
+                padding: 7px 4px;
+                font-size: 11px;
+                word-break: keep-all;
+                overflow-wrap: anywhere;
+                line-height: 1.4;
+                white-space: normal;
+            }
+            .program-table th {
+                white-space: normal;
+            }
             .programs-section::after {
-                content: '← 좌우로 스크롤하세요 →';
-                display: block;
-                text-align: center;
-                font-size: 12px;
-                color: rgba(255,255,255,0.4);
-                margin-top: 8px;
+                display: none;
             }
 
             .stage-flow {
@@ -1079,7 +1089,7 @@
         /* 반응형 - 초소형 모바일 (360px 이하) */
         @media (max-width: 400px) {
             .container {
-                padding: 24px 12px 48px;
+                padding: 210px 12px 48px;
             }
             .article-title {
                 font-size: 22px;
@@ -1187,8 +1197,8 @@
             }
             .program-table th,
             .program-table td {
-                padding: 10px 8px;
-                font-size: 12px;
+                padding: 6px 4px;
+                font-size: 10px;
             }
         }
     </style>
