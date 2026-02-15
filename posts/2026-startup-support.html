@@ -978,9 +978,9 @@
 
         /* 반응형 - 태블릿 */
         @media (max-width: 1024px) {
-            .post-layout { grid-template-columns: 1fr; }
+            .post-layout { grid-template-columns: 1fr; overflow: hidden; }
             .post-sidebar { display: none; }
-            .post-main { max-width: 800px; margin: 0 auto; }
+            .post-main { max-width: 100%; margin: 0 auto; min-width: 0; }
             .related-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
@@ -995,12 +995,23 @@
                 font-size: 26px;
             }
 
+            .article-title, .content-text, .section-title, .chart-title, .org-title, .cta-title, .cta-desc {
+                word-break: keep-all;
+                overflow-wrap: break-word;
+            }
+
             .stats-hero {
                 grid-template-columns: repeat(2, 1fr);
+                padding: 24px;
+                gap: 16px;
             }
 
             .stat-value {
                 font-size: 28px;
+            }
+
+            .chart-section {
+                padding: 20px;
             }
 
             .pie-chart-layout {
@@ -1009,6 +1020,28 @@
 
             .pie-chart-container {
                 margin: 0 auto;
+                width: 220px;
+                height: 220px;
+            }
+
+            .programs-section {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                max-width: 100%;
+            }
+
+            .program-table {
+                min-width: 600px;
+                display: table;
+            }
+
+            .programs-section::after {
+                content: '← 좌우로 스크롤하세요 →';
+                display: block;
+                text-align: center;
+                font-size: 12px;
+                color: rgba(255,255,255,0.4);
+                margin-top: 8px;
             }
 
             .stage-flow {
@@ -1023,8 +1056,140 @@
                 grid-template-columns: 1fr;
             }
 
+            .org-section {
+                padding: 20px;
+            }
+
+            .youth-section {
+                padding: 20px;
+            }
+
+            .cta-section {
+                padding: 28px 20px;
+            }
+
+            .breadcrumb-current {
+                max-width: 180px;
+            }
+
             .related-grid { grid-template-columns: 1fr; }
             .related-title { font-size: 18px; }
+        }
+
+        /* 반응형 - 초소형 모바일 (360px 이하) */
+        @media (max-width: 400px) {
+            .container {
+                padding: 24px 12px 48px;
+            }
+            .article-title {
+                font-size: 22px;
+            }
+            .article-excerpt {
+                font-size: 14px;
+            }
+            .stats-hero {
+                padding: 16px;
+                gap: 12px;
+            }
+            .stat-value {
+                font-size: 24px;
+            }
+            .stat-icon {
+                font-size: 32px;
+            }
+            .stat-label {
+                font-size: 12px;
+            }
+            .chart-section {
+                padding: 16px;
+            }
+            .chart-title {
+                font-size: 16px;
+            }
+            .pie-chart-container {
+                width: 200px;
+                height: 200px;
+            }
+            .legend-row {
+                padding: 12px;
+                gap: 10px;
+            }
+            .legend-name {
+                font-size: 13px;
+            }
+            .legend-amount {
+                font-size: 14px;
+            }
+            .section-title {
+                font-size: 20px;
+            }
+            .org-section {
+                padding: 16px;
+            }
+            .org-number {
+                font-size: 36px;
+            }
+            .org-item {
+                padding: 16px;
+            }
+            .youth-section {
+                padding: 16px;
+            }
+            .youth-info h3 {
+                font-size: 18px;
+            }
+            .youth-program {
+                padding: 16px;
+            }
+            .summary-card {
+                padding: 16px;
+            }
+            .summary-value {
+                font-size: 24px;
+            }
+            .apply-step {
+                padding: 16px;
+                gap: 12px;
+            }
+            .alert-box {
+                padding: 16px;
+                gap: 12px;
+            }
+            .content-text {
+                font-size: 15px;
+            }
+            .highlight-box {
+                padding: 16px;
+            }
+            .cta-section {
+                padding: 24px 16px;
+            }
+            .cta-title {
+                font-size: 18px;
+            }
+            .cta-btn {
+                padding: 14px 24px;
+                font-size: 15px;
+            }
+            .post-nav-btn {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+            .breadcrumb-current {
+                max-width: 140px;
+            }
+            .breadcrumb {
+                font-size: 13px;
+            }
+            .stage-card {
+                padding: 20px;
+                min-width: unset;
+            }
+            .program-table th,
+            .program-table td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>

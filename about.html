@@ -531,7 +531,7 @@
     }
 
     .about-system-section .section-title {
-        font-size: clamp(32px, 4vw, 48px);
+        font-size: clamp(24px, 6vw, 48px);
         font-weight: 900;
         color: #ffffff;
         margin-bottom: 20px;
@@ -541,7 +541,7 @@
     .about-system-section .section-title .highlight {
         color: #FFFFFF;
         text-shadow: 0 0 20px rgba(168, 212, 232, 0.35);
-        display: block;
+        display: inline;
     }
 
     .about-system-section .section-desc {
@@ -678,6 +678,8 @@
 
     @media (min-width: 768px) {
         .about-system-section { padding: 100px 40px; }
+        .about-system-section .section-title { font-size: clamp(36px, 4vw, 48px); }
+        .about-system-section .section-title .highlight { display: block; }
     }
 
     /* 모바일 */
@@ -2974,7 +2976,7 @@
                 <div class="form-area">
                     <div class="form-header">
                         <h3 class="form-title">K-자금컴퍼니 무료 상담 신청</h3>
-                        <p class="form-subtitle">간단한 정보 입력으로 K-자금컴퍼니 전문 상담을 받아보세요</p>
+                        <p class="form-subtitle">간단한 정보 입력으로 K-자금컴퍼니<br class="mobile-br"> 전문 상담을 받아보세요</p>
                     </div>
 
                     <form id="kfundConsultForm">

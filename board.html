@@ -469,6 +469,76 @@
             .board-cta h3 {
                 font-size: 18px;
             }
+
+            .board-card-title,
+            .board-cta h3,
+            .board-cta p,
+            .board-hero h1,
+            .board-hero p {
+                word-break: keep-all;
+                overflow-wrap: break-word;
+            }
+        }
+
+        /* 360px 이하 초소형 모바일 */
+        @media (max-width: 400px) {
+            .board-hero {
+                padding: 120px 12px 32px;
+            }
+
+            .board-hero h1 {
+                font-size: 24px;
+            }
+
+            .board-hero p {
+                font-size: 14px;
+            }
+
+            .board-section {
+                padding: 0 12px 48px;
+            }
+
+            .board-filters {
+                gap: 6px;
+            }
+
+            .filter-btn {
+                padding: 7px 12px;
+                font-size: 12px;
+            }
+
+            .board-card-body {
+                padding: 14px 14px 18px;
+            }
+
+            .board-card-title {
+                font-size: 15px;
+            }
+
+            .board-card-desc {
+                font-size: 13px;
+            }
+
+            .board-card-meta {
+                font-size: 12px;
+            }
+
+            .board-cta {
+                padding: 28px 16px;
+            }
+
+            .board-cta h3 {
+                font-size: 17px;
+            }
+
+            .board-cta p {
+                font-size: 14px;
+            }
+
+            .board-cta-btn {
+                padding: 14px 24px;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
@@ -794,6 +864,14 @@
         @media (max-width: 520px) {
             .kfund-footer .footer-logo-image { height: 34px; }
             .kfund-footer .footer-links a, .kfund-footer .copyright { font-size: 12px; }
+        }
+
+        @media (max-width: 400px) {
+            .kfund-footer .footer-container { padding: 0 12px; }
+            .kfund-footer .contact-item { font-size: 12px; gap: 8px; }
+            .kfund-footer .contact-item span { word-break: keep-all; overflow-wrap: break-word; }
+            .kfund-footer .partnership-link a { font-size: 11px; padding: 8px 12px; gap: 8px; }
+            .kfund-footer .footer-list a { font-size: 13px; }
         }
     </style>
 

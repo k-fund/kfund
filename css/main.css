@@ -84,6 +84,7 @@ body {
   background-color: #0F1B2D;
   color: var(--text-secondary);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 a {
@@ -95,6 +96,10 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* Mobile line break: 모바일에서만 줄바꿈 */
+.mobile-br { display: none; }
+@media (max-width: 768px) { .mobile-br { display: inline; } }
 
 /* Container */
 .container {

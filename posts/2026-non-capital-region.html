@@ -702,29 +702,61 @@
 
         /* 반응형 - 태블릿 */
         @media (max-width: 1024px) {
-            .post-layout { grid-template-columns: 1fr; }
+            .post-layout { grid-template-columns: 1fr; overflow: hidden; }
             .post-sidebar { display: none; }
-            .post-main { max-width: 800px; margin: 0 auto; }
+            .post-main { max-width: 100%; margin: 0 auto; min-width: 0; }
             .related-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* 반응형 - 모바일 */
         @media (max-width: 768px) {
-            .container {
-                padding: 24px 16px 60px;
-            }
+            .container { padding: 24px 16px 60px; }
             .related-grid { grid-template-columns: 1fr; }
             .summary-grid, .special-benefits { grid-template-columns: 1fr; }
 
-            .article-title {
-                font-size: 26px;
-            }
-
-            .benefits-hero {
-                grid-template-columns: 1fr;
-            }
-
+            .article-title { font-size: 26px; word-break: keep-all; overflow-wrap: break-word; }
+            .article-excerpt { word-break: keep-all; overflow-wrap: break-word; }
+            .benefits-hero { grid-template-columns: 1fr; }
             .chart-container { height: 250px; }
+            .chart-section { padding: 20px; }
+            .special-region-section { padding: 24px; }
+            .breadcrumb-current { max-width: 180px; }
+            .content-section {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                max-width: 100%;
+            }
+
+            .data-table {
+                min-width: 520px;
+                display: table;
+            }
+
+            .content-section:has(.data-table)::after {
+                content: '← 좌우로 스크롤하세요 →';
+                display: block;
+                text-align: center;
+                font-size: 12px;
+                color: rgba(255,255,255,0.4);
+                margin-top: 8px;
+            }
+            .content-text { word-break: keep-all; overflow-wrap: break-word; }
+            .section-title { word-break: keep-all; overflow-wrap: break-word; }
+        }
+
+        /* 반응형 - 소형 모바일 */
+        @media (max-width: 400px) {
+            .container { padding: 24px 12px 48px; }
+            .article-title { font-size: 22px; }
+            .summary-value { font-size: 24px; }
+            .chart-section { padding: 16px; }
+            .special-region-section { padding: 16px; }
+            .cta-section { padding: 24px 16px; }
+            .breadcrumb-current { max-width: 140px; }
+            .breadcrumb { font-size: 13px; }
+            .data-table th, .data-table td { padding: 10px 8px; font-size: 12px; }
+            .benefit-hero-card { padding: 20px; }
+            .benefit-value { font-size: 24px; }
         }
     </style>
 </head>
